@@ -7,7 +7,7 @@
 // - everything else (pictures, fonts, fixed library versions, AI models): cache first.
 // The photo service (QR codes) is never cached.
 const CACHE = 'zgc-offline-v1';
-const SCOPE = new URL('./', self.location).pathname;          // /zwart-gat-camera/
+const SCOPE = new URL('./', self.location).pathname;          // /bh-camera/
 const CORE = [
   './', 'teksten.js',
   'achtergronden/aarde.jpg', 'achtergronden/aardopgang.jpg', 'achtergronden/maan.jpg',

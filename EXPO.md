@@ -43,7 +43,7 @@ What was checked (November 2026):
    a portrait screen is used with a landscape camera.
    **Picture quality** is *Automatisch* by default: full screen resolution (e.g. 4K), stepping
    down to the laptop level only if the picture would stutter. Settings shows the size drawn.
-5. **Open the page** <https://drmayerson.github.io/zwart-gat-camera/>, click **Camera aan**
+5. **Open the page** <https://drmayerson.github.io/bh-camera/>, click **Camera aan**
    and allow the camera; in the site settings (padlock icon left of the address) set
    *Camera* to **Allow**, so it starts by itself next time.
 6. **Settings** (gear bottom left): language, camera (if there are several), background mode
@@ -65,7 +65,7 @@ What was checked (November 2026):
 For a laptop that starts the page by itself after a reboot, without address bar:
 
 1. Create a shortcut with target
-   `"C:\Program Files\Google\Chrome\Application\chrome.exe" --kiosk "https://drmayerson.github.io/zwart-gat-camera/"`
+   `"C:\Program Files\Google\Chrome\Application\chrome.exe" --kiosk "https://drmayerson.github.io/bh-camera/"`
 2. Press Win+R, type `shell:startup`, and put the shortcut in that folder.
 3. To leave kiosk mode: Alt+F4.
 

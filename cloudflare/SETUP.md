@@ -36,7 +36,7 @@ KV deletes every photo by itself 24 hours after the upload.
 4. Name it, for example `zwart-gat-fotos`, and click **Deploy**.
 5. Click **Edit code**, delete everything in the editor, paste the full contents of
    [`worker.js`](worker.js), and click **Deploy** again. (The file is also at
-   <https://raw.githubusercontent.com/drmayerson/drmayerson.github.io/main/zwart-gat-camera/cloudflare/worker.js>.)
+   <https://raw.githubusercontent.com/drmayerson/bh-camera/main/cloudflare/worker.js>.)
 6. Note the address of the Worker, `https://<worker-name>.<your-account>.workers.dev`.
    For this booth it is `https://zwart-gat-fotos.drmayerson.workers.dev`.
 
