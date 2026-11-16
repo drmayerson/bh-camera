@@ -950,7 +950,7 @@ input[type=range] {
   stroke: var(--accent);
   stroke-width: 3;
   stroke-linecap: round;
-  marker-end: url(#ptArrow);
+  stroke-linejoin: round;
 }
 .ray.traced { stroke-dasharray: 7 5; }        /* traced back from the camera: no light comes this way */
 

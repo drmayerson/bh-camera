@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;500;700&display=swap">
 <!-- ?v=: raise this number whenever texts.js changes, so browsers fetch the new texts -->
-<script src="texts.js?v=2026111701"></script>
+<script src="texts.js?v=2026111702"></script>
 <!-- page styles; ?v=: raise it whenever style.css changes -->
-<link rel="stylesheet" href="style.css?v=2026111701">
+<link rel="stylesheet" href="style.css?v=2026111702">
 </head>
 <body>
 <!-- the picture: the camera image, bent by the black hole (drawn by the shader) -->
@@ -80,11 +80,11 @@
   </div>
 </div>
 <!-- physics explanation points on the picture (placed by js/11-physics-points.js) and the
-     card that explains one of them, with a drawing of the path of the light:
-     camera on the left, black hole in the middle, the picture behind it (dashed) on the right -->
+     card that explains one of them, with a drawing of the path of the light (made by
+     pointArt() in js/11-physics-points.js) -->
 <div class="points" id="points" hidden>
   <button class="pt" data-k="weak" aria-label="Een klein beetje afgebogen" data-t-attr="aria-label:pt_weakT" hidden></button>
-  <button class="pt" data-k="n1" aria-label="Licht van achter de camera" data-t-attr="aria-label:pt_n1T" hidden></button>
+  <button class="pt" data-k="n1" aria-label="Licht van naast en achter de camera" data-t-attr="aria-label:pt_n1T" hidden></button>
   <button class="pt" data-k="n2" aria-label="Eén keer helemaal rond" data-t-attr="aria-label:pt_n2T" hidden></button>
   <button class="pt" data-k="shadow" aria-label="De schaduw" data-t-attr="aria-label:pt_shadowT" hidden></button>
 </div>
@@ -92,22 +92,7 @@
   <div class="info-card point-card">
     <button class="info-close" id="pointClose" aria-label="Sluiten" data-t-attr="aria-label:close">×</button>
     <h2 id="pointTitle"></h2>
-    <div class="point-art" aria-hidden="true">
-      <svg data-k="weak" viewBox="0 0 260 120"><use href="#ptScene"/><path class="ray" d="M246 24 C 190 27, 150 36, 32 58"/></svg>
-      <svg data-k="n1" viewBox="0 0 260 120" hidden><use href="#ptScene"/><path class="ray" d="M6 30 L 160 30 A 30 30 0 0 1 160 90 L 32 63"/></svg>
-      <svg data-k="n2" viewBox="0 0 260 120" hidden><use href="#ptScene"/><path class="ray" d="M246 38 L 160 38 A 22 22 0 1 0 160 82 A 22 22 0 1 0 160 38 C 120 38, 70 48, 32 58"/></svg>
-      <svg data-k="shadow" viewBox="0 0 260 120" hidden><use href="#ptScene"/><path class="ray traced" d="M32 60 C 90 58, 128 54, 146 56 Q 156 50 160 56 Q 163 60 160 61"/></svg>
-      <svg width="0" height="0" style="position:absolute">
-        <defs>
-          <marker id="ptArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6c9c"/></marker>
-          <g id="ptScene">
-            <line x1="246" y1="10" x2="246" y2="110" stroke="#c3b6e0" stroke-width="2" stroke-dasharray="4 5"/>
-            <circle cx="160" cy="60" r="13" fill="#000" stroke="#ff9a3c" stroke-width="2.5"/>
-            <g fill="#f3ecff"><rect x="10" y="52" width="14" height="16" rx="2"/><path d="M24 55 L31 51 L31 69 L24 65 z"/></g>
-          </g>
-        </defs>
-      </svg>
-    </div>
+    <div class="point-art" id="pointArt" aria-hidden="true"></div>
     <p id="pointText"></p>
     <p class="hint" id="pointDefl"></p>
   </div>
@@ -393,18 +378,18 @@
      Names declared at the top level of one file are visible in the files after it.
      ?v=: raise this number whenever a file in js/ changes, so browsers fetch the new
      version instead of an old copy. Keep this list in step with CORE in sw.js. -->
-<script src="js/01-lensing-shader.js?v=2026111701"></script>
-<script src="js/02-setup.js?v=2026111701"></script>
-<script src="js/03-settings.js?v=2026111701"></script>
-<script src="js/04-drawing.js?v=2026111701"></script>
-<script src="js/05-camera.js?v=2026111701"></script>
-<script src="js/06-panel.js?v=2026111701"></script>
-<script src="js/07-background-removal.js?v=2026111701"></script>
-<script src="js/08-background-pictures.js?v=2026111701"></script>
-<script src="js/09-photos.js?v=2026111701"></script>
-<script src="js/10-hand-photo.js?v=2026111701"></script>
-<script src="js/11-physics-points.js?v=2026111701"></script>
-<script src="js/12-main.js?v=2026111701"></script>
+<script src="js/01-lensing-shader.js?v=2026111702"></script>
+<script src="js/02-setup.js?v=2026111702"></script>
+<script src="js/03-settings.js?v=2026111702"></script>
+<script src="js/04-drawing.js?v=2026111702"></script>
+<script src="js/05-camera.js?v=2026111702"></script>
+<script src="js/06-panel.js?v=2026111702"></script>
+<script src="js/07-background-removal.js?v=2026111702"></script>
+<script src="js/08-background-pictures.js?v=2026111702"></script>
+<script src="js/09-photos.js?v=2026111702"></script>
+<script src="js/10-hand-photo.js?v=2026111702"></script>
+<script src="js/11-physics-points.js?v=2026111702"></script>
+<script src="js/12-main.js?v=2026111702"></script>
 
 </body>
 </html>
