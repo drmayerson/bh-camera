@@ -1,0 +1,885 @@
+/* =====================================================================================
+   Zwart gat camera: page styles
+   -------------------------------------------------------------------------------------
+   The order of the rules matters in a few places (a later rule overrides an earlier one
+   with the same weight, e.g. ".langs button" after ".vlangs button"), so new rules are
+   best added next to the ones they belong with, not moved around.
+
+   Layers (z-index), bottom to top: logo 2 · tap controls, visitor languages 3 ·
+   settings panel, QR button, (i) button 4 · gear, banner, message at the bottom 5 ·
+   countdown, QR code 6 · explanation 7 · PIN keypad 8
+   ===================================================================================== */
+
+
+/* ---------- Colours, fonts and logo size (used throughout) ---------- */
+
+:root {
+  --panel: rgba(14,10,30,.84);
+  --ink: #f3ecff;
+  --soft: #c3b6e0;
+  --line: rgba(190,170,240,.28);
+  --accent: #ff6c9c;
+  --display: "Unbounded","Helvetica Neue",Arial,system-ui,sans-serif;
+  --body: "Atkinson Hyperlegible","Helvetica Neue",Arial,system-ui,sans-serif;
+  --mono: "JetBrains Mono",ui-monospace,Consolas,monospace;
+  --logo-w: clamp(64px,8.5vw,124px);
+  --logo-h: calc(var(--logo-w)*1.19);
+}
+
+
+/* ---------- Page basics: full-screen canvas, no scrolling, touch behaviour ---------- */
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+/* touch screen: no double-tap zoom, no text selection or long-press menus on the picture */
+html { touch-action: manipulation; }
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, select, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.panel { touch-action: pan-y; }                 /* the settings panel only scrolls up and down */
+
+/* (more body rules; the first ones are above, with the touch rules) */
+body {
+  margin: 0;
+  background: #000;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ---------- Einstein Telescope logo (top left) ---------- */
+
+/* no box: light on the picture, with a soft shadow */
+.brand {
+  position: fixed;
+  top: max(14px,env(safe-area-inset-top,0px));
+  left: max(16px,env(safe-area-inset-left,0px));
+  width: var(--logo-w);
+  margin: 0;
+  pointer-events: none;
+  z-index: 2;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.55)) drop-shadow(0 0 16px rgba(0,0,0,.35));
+}
+.brand[hidden] { display: none; }
+
+.et-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.et-word { fill: #fff; }
+
+
+/* ---------- Tap controls at the right edge: size, spin, background picture ---------- */
+
+.dock {
+  position: fixed;
+  right: max(14px,env(safe-area-inset-right,0px));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px,1.4vw,18px);
+  color: #fff;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.7));
+}
+.dock[hidden] { display: none; }
+
+.dock-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.dock-col[hidden] { display: none; }
+
+.dock-btn {
+  width: 52px;
+  height: 52px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .85;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dock-btn:hover {
+  border: 0;
+  opacity: 1;
+  background: rgba(255,255,255,.08);
+}
+.dock-btn:active { background: rgba(255,255,255,.18); }
+
+.dock-btn svg {
+  width: 26px;
+  height: 26px;
+}
+
+.dock-reset svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dock-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dock-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.dock-val {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .06em;
+  opacity: .8;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------- Banner at the top: instructions while learning the background or picking a colour ---------- */
+
+.banner {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  font-weight: 700;
+  text-align: center;
+  z-index: 5;
+}
+.banner[hidden] { display: none; }
+
+.banner.big {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(1.1rem,3.6vw,1.6rem);
+}
+
+
+/* ---------- Mouse pointer per mode (picking a colour, taking photos, idle) ---------- */
+
+body.picking canvas { cursor: crosshair; }
+body.picking .panel, body.picking .dock { display: none; }
+body.shots canvas { cursor: copy; }
+body.idle, body.idle canvas { cursor: none; }
+
+
+/* ---------- Photos: flash, countdown, message at the bottom, QR code ---------- */
+
+.flash {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+.flash.go { animation: flash .45s ease-out; }
+
+@keyframes flash {
+  from { opacity: .75; }
+  to { opacity: 0; }
+}
+
+.count {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 6;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: min(40vh,40vw);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 .12em rgba(0,0,0,.65),0 .04em .3em rgba(0,0,0,.5);
+}
+.count[hidden] { display: none; }
+.count span { animation: countPop 1s ease-out both; }
+
+.count span.snap {
+  font-size: .4em;
+  letter-spacing: .02em;
+}
+
+@keyframes countPop {
+  0% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  15% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  80% { opacity: 1; }
+  100% {
+    transform: scale(.85);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .count span { animation: none; }
+  .flash.go { animation-duration: .01s; }
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px,env(safe-area-inset-bottom,0px));
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  font-size: .92rem;
+  z-index: 5;
+  pointer-events: none;
+}
+.toast[hidden] { display: none; }
+
+.qr {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 6;
+  pointer-events: none;
+}
+.qr[hidden] { display: none; }
+
+.qr-card {
+  position: relative;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px 22px;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  padding: 22px 22px 26px;
+  border-radius: 22px;
+  background: #fff;
+  color: #1b0f2c;
+  box-shadow: 0 12px 40px rgba(0,0,0,.55);
+  text-align: center;
+}
+
+.qr-thumb {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(280px,36vw);
+  max-height: min(280px,60vh);
+  border-radius: 12px;
+  background: #000;
+}
+
+.qr-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.qr-code {
+  width: min(320px,40vw,58vh);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-aspect-ratio:4/5) {
+  .qr-card { flex-direction: column; }
+  .qr-thumb {
+    max-width: 60vw;
+    max-height: 22vh;
+  }
+  .qr-code { width: min(320px,72vw,44vh); }
+}
+
+.qr-code img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.qr-code .wait {
+  font-weight: 700;
+  color: #5a4a7a;
+}
+
+.qr-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: .01em;
+}
+
+.qr-small {
+  margin: 0;
+  color: #5a4a7a;
+  font-size: .9rem;
+  max-width: 300px;
+}
+
+.qr-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-height: 48px;
+  width: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #5a4a7a;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.qr-close:hover { color: #1b0f2c; }
+
+.qr-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  border-radius: 0 0 22px 22px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.qr-bar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transform-origin: left;
+}
+
+.qr-again {
+  position: fixed;
+  right: max(12px,env(safe-area-inset-right,0px));
+  bottom: max(12px,env(safe-area-inset-bottom,0px));
+  z-index: 4;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(20,14,38,.55);
+  opacity: .6;
+  font-family: var(--mono);
+  font-size: .8rem;
+}
+.qr-again:hover, .qr-again:focus-visible { opacity: 1; }
+.qr-again[hidden] { display: none; }
+
+
+/* ---------- Settings: indent and text fields ---------- */
+
+.indent { padding-left: 26px; }
+
+input[type=url], input[type=password] {
+  font: inherit;
+  width: 100%;
+  color: var(--ink);
+  background: rgba(255,255,255,.08);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+  min-height: 40px;
+}
+
+
+/* ---------- Settings: gear button and panel ---------- */
+
+/* the gear stays in the corner; the panel opens just above it, so tapping the gear again closes it */
+.gear {
+  position: fixed;
+  left: max(12px,env(safe-area-inset-left,0px));
+  bottom: max(12px,env(safe-area-inset-bottom,0px));
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(10,8,20,.5);
+  opacity: .5;
+}
+
+.gear svg {
+  width: 22px;
+  height: 22px;
+}
+.gear:hover, .gear:focus-visible, .gear[aria-expanded=true] { opacity: 1; }
+
+.gear[aria-expanded=true] {
+  background: var(--panel);
+  border-color: var(--accent);
+}
+
+.panel {
+  position: fixed;
+  left: max(12px,env(safe-area-inset-left,0px));
+  bottom: calc(max(12px,env(safe-area-inset-bottom,0px)) + 52px);
+  z-index: 4;
+  width: min(390px,calc(100vw - 24px));
+  max-height: calc(100vh - 96px - var(--logo-h));
+  overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(6px);
+}
+
+/* the head row stays at the top while the settings scroll */
+.row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  position: sticky;
+  top: -14px;
+  z-index: 2;
+  margin: -14px -16px 0;
+  padding: 14px 16px 10px;
+  background: rgba(14,10,30,.97);
+  border-radius: 18px 18px 0 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.row-head strong {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: .95rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+body.nologo .panel { max-height: calc(100vh - 76px); }
+.panel.hidden { display: none; }
+
+.langs {
+  display: flex;
+  gap: 6px;
+}
+
+
+/* ---------- Visitor buttons: languages (top right) and the (i) explanation ---------- */
+
+.vlangs {
+  position: fixed;
+  top: max(14px,env(safe-area-inset-top,0px));
+  right: max(14px,env(safe-area-inset-right,0px));
+  z-index: 3;
+}
+.vlangs[hidden] { display: none; }
+
+.vlangs button {
+  flex: none;
+  width: 48px;
+  min-height: 44px;
+  background: rgba(10,8,20,.5);
+  opacity: .75;
+}
+.vlangs button[aria-pressed=true] { opacity: 1; }
+
+.info-btn {
+  position: fixed;
+  left: calc(max(12px,env(safe-area-inset-left,0px)) + 56px);
+  bottom: max(12px,env(safe-area-inset-bottom,0px));
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10,8,20,.5);
+  opacity: .75;
+}
+
+.info-btn svg {
+  width: 26px;
+  height: 26px;
+}
+.info-btn[hidden] { display: none; }
+
+.info {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 7;
+  background: rgba(0,0,0,.45);
+}
+.info[hidden] { display: none; }
+
+.info-card {
+  position: relative;
+  max-width: min(620px,100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 22px 24px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  color: var(--soft);
+  font-size: 1.05rem;
+}
+
+.info-card h2 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.2rem;
+  letter-spacing: .02em;
+}
+.info-card p { margin: 8px 0 0; }
+.info-card b { color: var(--ink); }
+
+.info-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 48px;
+  height: 48px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+
+/* ---------- PIN keypad ---------- */
+
+/* keypad: small, bottom left, where the gear is */
+.pinpad {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  z-index: 8;
+  background: rgba(0,0,0,.3);
+  padding: 0 0 max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));
+}
+.pinpad[hidden] { display: none; }
+
+.pin-card {
+  width: min(236px,calc(100vw - 24px));
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pin-title {
+  margin: 0;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: .8rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.pin-dots {
+  display: flex;
+  gap: 10px;
+  min-height: 18px;
+}
+
+.pin-dots i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.pin-dots.wrong { animation: shake .35s; }
+
+@keyframes shake {
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.pin-keys {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.pin-keys button {
+  min-height: 48px;
+  padding: 4px;
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.pin-keys button[data-k=ok] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1b0f2c;
+  font-size: .9rem;
+}
+
+.pin-cancel {
+  width: 100%;
+  min-height: 42px;
+}
+
+
+/* ---------- Controls inside the settings panel: language buttons, checkboxes, groups, lists, buttons, sliders ---------- */
+
+.langs button {
+  flex: 1;
+  min-height: 34px;
+  padding: 4px 0;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: .78rem;
+  letter-spacing: .12em;
+}
+
+.langs button[aria-pressed=true] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1b0f2c;
+}
+
+label.check {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+label.check input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+fieldset {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin: 0;
+  padding: 8px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+legend {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: .74rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--soft);
+  padding: 0 6px;
+}
+
+select {
+  font: inherit;
+  width: 100%;
+  max-width: 100%;
+  color: var(--ink);
+  background: rgba(255,255,255,.08);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+  min-height: 40px;
+}
+select option { color: #000; }
+
+select:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sub {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sub[hidden] { display: none; }
+
+.swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  flex: none;
+}
+
+button {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: .8rem;
+  letter-spacing: .03em;
+  color: var(--ink);
+  background: rgba(255,255,255,.08);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  min-height: 40px;
+}
+button:hover { border-color: var(--accent); }
+
+button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1b0f2c;
+}
+
+.btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lab {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lab span:last-child {
+  color: var(--soft);
+  font-family: var(--mono);
+  font-size: .82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+input[type=range] {
+  width: 100%;
+  accent-color: var(--accent);
+  min-height: 28px;
+}
+
+.hint {
+  color: var(--soft);
+  font-size: .9rem;
+  margin: 0;
+}
+
+
+/* ---------- Full-screen message (no WebGL, no camera, ...) ---------- */
+
+.msg {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  font-size: 1.1rem;
+}
+.msg.show { display: flex; }

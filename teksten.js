@@ -201,6 +201,7 @@ en: {
   what4: `Everything is calculated exactly with the formulas for light paths around a spinning (Kerr) black hole, from the work of Gralla &amp; Lupsasca (2020).`,
   cancel: `Cancel`, close: `Close`, yourPhoto: `Your photo`,
   qrDialog: `QR code to download your photo`, qrAgainTitle: `Show recent QR codes again (key Q)`,
+  // messages
   noWebGL: `Your browser does not support WebGL, so the black hole cannot be drawn.`,
   glFail: `The black hole could not be drawn on this device.`,
   demoTitle: `EXAMPLE`, demoSub: `Switch your camera on`,
@@ -324,6 +325,7 @@ fr: {
   what4: `Tout est calculé exactement avec les formules des trajectoires de la lumière autour d'un trou noir en rotation (de Kerr), d'après les travaux de Gralla &amp; Lupsasca (2020).`,
   cancel: `Annuler`, close: `Fermer`, yourPhoto: `Votre photo`,
   qrDialog: `Code QR pour télécharger votre photo`, qrAgainTitle: `Réafficher les derniers codes QR (touche Q)`,
+  // messages
   noWebGL: `Votre navigateur ne prend pas en charge WebGL : le trou noir ne peut pas être dessiné.`,
   glFail: `Le trou noir n'a pas pu être dessiné sur cet appareil.`,
   demoTitle: `EXEMPLE`, demoSub: `Allumez votre caméra`,
@@ -447,6 +449,7 @@ de: {
   what4: `Alles wird exakt mit den Formeln für Lichtbahnen um ein rotierendes (Kerr-)Schwarzes Loch berechnet, nach der Arbeit von Gralla &amp; Lupsasca (2020).`,
   cancel: `Abbrechen`, close: `Schließen`, yourPhoto: `Dein Foto`,
   qrDialog: `QR-Code zum Herunterladen deines Fotos`, qrAgainTitle: `Letzte QR-Codes wieder zeigen (Taste Q)`,
+  // messages
   noWebGL: `Dein Browser unterstützt kein WebGL, deshalb kann das Schwarze Loch nicht gezeichnet werden.`,
   glFail: `Das Schwarze Loch konnte auf diesem Gerät nicht gezeichnet werden.`,
   demoTitle: `BEISPIEL`, demoSub: `Schalte deine Kamera ein`,

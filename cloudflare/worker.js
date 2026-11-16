@@ -10,7 +10,7 @@
 //
 // Routes:
 //   POST /upload    body = JPEG, headers X-Booth-Key, X-Photo-Name  -> {id, page, expires}
-//   GET  /check     header X-Booth-Key                              -> {ok: true}
+//   GET  /check     header X-Booth-Key                              -> {ok: true, keepHours}
 //   GET  /p/<id>    small download page for visitors (what the QR code opens)
 //   GET  /f/<id>    the photo itself (?download=1 to save it as a file)
 //
