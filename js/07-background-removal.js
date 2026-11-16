@@ -1,8 +1,8 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 07: background removal
+   Black hole camera — 07: background removal
    -------------------------------------------------------------------------------------
    The camera picture's background can be replaced by the star sky (or a background
    picture), so the visitor floats in front of the black hole. Modes (setting bgMode):
@@ -393,8 +393,8 @@ let worker = null,                        // the running Web Worker (or null)
     workerBusy = false,                   // a frame is being analysed (plus the pause after it)
     workerError = null,                   // why the network failed (shown in the note)
     tileTurn = 0,                         // which of the TILES is analysed next
-    aiMs = 0,                             // time per round (ms, smoothed), for zgcStats()
-    aiDelegateNote = '';                  // 'GPU' or 'CPU': where the network runs, for zgcStats()
+    aiMs = 0,                             // time per round (ms, smoothed), for bhcStats()
+    aiDelegateNote = '';                  // 'GPU' or 'CPU': where the network runs, for bhcStats()
 
 function startWorker(model){
   if (worker && workerModel === model) return;

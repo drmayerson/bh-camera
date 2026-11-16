@@ -1,4 +1,4 @@
-# Zwart gat camera at an expo: review and checklist
+# Black hole camera at an expo: review and checklist
 
 Situation: the page runs on a laptop at a booth, only expo staff use the mouse, keyboard or a
 presenter remote; visitors look at the screen (and scan a QR code for their photo).
@@ -57,7 +57,7 @@ What was checked (November 2026):
 10. **Offline test:** with internet, use every mode you plan to use once (especially the
     "stand" background mode, so the person-recognition files are stored). Then switch
     Wi-Fi off, close the browser and open the page again: it should start normally. In
-    the console (F12), `zgcOffline()` lists what is stored. After an update of the page,
+    the console (F12), `bhcOffline()` lists what is stored. After an update of the page,
     open it once with internet so the new version is stored too.
 
 ### Optional: start automatically as a kiosk
@@ -83,7 +83,7 @@ folder permissions are already granted.
 | Spin, size, background picture without opening Settings | arrows at the right edge (tick the options in Settings) |
 | Full screen on/off | **F** (or Esc to leave) |
 | Settings | small gear bottom left |
-| Check performance | press F12 → Console → type `zgcStats()` (fps should be 50–60) |
+| Check performance | press F12 → Console → type `bhcStats()` (fps should be 50–60) |
 
 ## Risks and what to do
 

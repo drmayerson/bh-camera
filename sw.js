@@ -1,4 +1,4 @@
-// Zwart gat camera: offline cache (service worker).
+// Black hole camera: offline cache (service worker).
 // After one visit with internet, the page also starts without internet: the page itself,
 // the texts, the background pictures, the fonts, the QR library and (once they have been
 // used) the person-recognition files are kept on this computer.
@@ -6,15 +6,15 @@
 //   arrive), from the cache when there is none or it takes longer than 4 s;
 // - everything else (pictures, fonts, fixed library versions, AI models): cache first.
 // The photo service (QR codes) is never cached.
-const CACHE = 'zgc-offline-v1';      // raise v1 when a picture in achtergronden/ changes (pictures are cache-first)
+const CACHE = 'bhc-offline-v1';      // raise v1 when a picture in backgrounds/ changes (pictures are cache-first)
 const SCOPE = new URL('./', self.location).pathname;          // /bh-camera/
 // stored at installation; keep the js/ files in step with the <script> list in index.html
 const CORE = [
-  './', 'teksten.js', 'style.css',
+  './', 'texts.js', 'style.css',
   'js/01-lensing-shader.js', 'js/02-setup.js', 'js/03-settings.js', 'js/04-drawing.js', 'js/05-camera.js',
   'js/06-panel.js', 'js/07-background-removal.js', 'js/08-background-pictures.js', 'js/09-photos.js', 'js/10-main.js',
-  'achtergronden/aarde.jpg', 'achtergronden/aardopgang.jpg', 'achtergronden/maan.jpg',
-  'achtergronden/pilaren.jpg', 'achtergronden/diep-heelal.jpg',
+  'backgrounds/earth.jpg', 'backgrounds/earthrise.jpg', 'backgrounds/moon.jpg',
+  'backgrounds/pillars.jpg', 'backgrounds/deep-field.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'
 ];
 const CDN = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'storage.googleapis.com'];
@@ -28,9 +28,10 @@ self.addEventListener('install', e => {
     .then(() => self.skipWaiting()));
 });
 
+// activation: remove older versions of the cache (zgc-: its name before the move to English)
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k.startsWith('zgc-offline-') && k !== CACHE).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => (k.startsWith('bhc-offline-') || k.startsWith('zgc-offline-')) && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

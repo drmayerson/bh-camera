@@ -1,8 +1,8 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 09: photos and QR codes
+   Black hole camera — 09: photos and QR codes
    -------------------------------------------------------------------------------------
    A click in the picture (or an arrow key) takes a photo of what is on screen: only the
    black-hole image, without the settings. It can be saved on this computer (in Chrome/Edge
@@ -52,7 +52,7 @@ el('qrAgainOn').addEventListener('change', () => { updateQrAgain(); save(); });
 // choosing the photo folder (remembered in IndexedDB)
 el('shotDirBtn').addEventListener('click', async () => {
   try {
-    shotDir = await window.showDirectoryPicker({id: 'zwart-gat-fotos', mode: 'readwrite', startIn: 'downloads'});
+    shotDir = await window.showDirectoryPicker({id: 'black-hole-photos', mode: 'readwrite', startIn: 'downloads'});
     if (el('remember').checked) await idbSet('shotDir', shotDir).catch(e => console.warn('could not remember the folder', e));
   } catch (e) { if (e && e.name !== 'AbortError') console.warn(e); }
   updateShotUI();
@@ -134,7 +134,7 @@ function grabShot(){
   c.toBlob(b => handleShot(b, thumb).catch(e => console.error(e)).finally(() => { shotBusy = false; }), 'image/jpeg', 0.92);
 }
 
-// date and time for the file name, e.g. 2026-11-16_14-05-09
+// date and time for the file name, e.g. black-hole_2026-11-16_14-05-09.jpg
 let lastStamp = '', stampCount = 0;
 function stamp(){
   const d = new Date(), z = v => String(v).padStart(2, '0');
@@ -153,7 +153,7 @@ function stamp(){
 // instead (when that was not already chosen).
 async function handleShot(blob, thumb){
   if (!blob) { toast(t('shotFail')); return; }
-  const name = 'zwart-gat_' + stamp() + '.jpg';
+  const name = 'black-hole_' + stamp() + '.jpg';
   const wantLocal = shotLocal.checked, wantQR = shotQR.checked;
   const local = wantLocal ? saveLocal(blob, name) : null;
   if (wantQR) {
@@ -257,7 +257,7 @@ function loadQrLib(){
     s.integrity = 'sha384-mZT2gIty7ZDdOGkxfP6joZcYdMW1Jvj9dRlfpTmaJAKKXTqzygtB22k7FLe+KZC1';
     s.crossOrigin = 'anonymous';
     s.onload = () => res(window.qrcode);
-    s.onerror = () => { qrLib = null; rej(new Error('QR-bibliotheek niet geladen')); };   // (Dutch only: not in teksten.js)
+    s.onerror = () => { qrLib = null; rej(new Error('QR library not loaded')); };
     document.head.appendChild(s);
   });
   return qrLib;
@@ -280,7 +280,7 @@ function startQrTimer(){
 // while uploading: the photo with "please wait"
 function showQRWaiting(thumb){
   el('qrThumb').src = thumb;
-  el('qrCode').innerHTML = '<span class="wait">Foto wordt klaargezet…</span>';   // (Dutch only: not in teksten.js)
+  el('qrCode').innerHTML = '<span class="wait">' + t('preparing') + '</span>';
   el('qrTitle').textContent = t('wait');
   el('qrInfo').textContent = '';
   el('qrBox').hidden = false; qrShown = -1;
@@ -298,8 +298,7 @@ async function showQR(i, again){
   const qr = qrcode(0, 'M');
   qr.addData(h.page + (h.page.includes('?') ? '&' : '?') + 'l=' + lang);
   qr.make();
-  // (the alt text is Dutch only: not in teksten.js)
-  el('qrCode').innerHTML = '<img alt="QR-code met de link naar je foto" src="' + qr.createDataURL(8, 4) + '">';
+  el('qrCode').innerHTML = '<img alt="' + t('qrImgAlt') + '" src="' + qr.createDataURL(8, 4) + '">';
   el('qrThumb').src = h.thumb;
   el('qrTitle').textContent = t('scan');
   el('qrInfo').textContent = (again ? t('photoOf', {t: qrTime(h.time), i: i + 1, n: qrHistory.length}) : '') + t('kept24');

@@ -1,12 +1,12 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 10: render loop and start-up
+   Black hole camera — 10: render loop and start-up
    -------------------------------------------------------------------------------------
    - the render loop: every screen refresh, take the newest camera frame, run the
      background removal, and draw (computing the lens map again only after a change);
-   - console helpers for staff: zgcStats(), zgcOffline();
+   - console helpers for staff: bhcStats(), bhcOffline();
    - the remaining settings: "Onthouden", camera on its side, picture quality, language;
    - start-up: the offline cache, then everything shown as it was left last time.
    ===================================================================================== */
@@ -77,7 +77,7 @@ function frame(now){
 
 // ---------- console helpers for staff ----------
 
-// timings for checking a booth computer (console: zgcStats())
+// timings for checking a booth computer (console: bhcStats())
 let fpsCount = 0, fpsT0 = performance.now(), fpsNow = 0;
 (function fpsTick(){
   fpsCount++;
@@ -85,7 +85,7 @@ let fpsCount = 0, fpsT0 = performance.now(), fpsNow = 0;
   if (now - fpsT0 >= 2000) { fpsNow = Math.round(fpsCount*1000/(now - fpsT0)); fpsCount = 0; fpsT0 = now; }
   requestAnimationFrame(fpsTick);
 })();
-window.zgcStats = () => {
+window.bhcStats = () => {
   const pct = (a, test) => a ? Math.round(100*a.reduce((s, v) => s + (test(v) ? 1 : 0), 0)/a.length) + '%' : '-';
   return {
     fps: fpsNow, drawn: canvas.width + 'x' + canvas.height, quality,
@@ -129,8 +129,8 @@ updateRememberNote();
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').catch(e => console.warn('offline cache not available', e));
 }
-// console: zgcOffline() lists what is kept for offline use
-window.zgcOffline = async () => {
+// console: bhcOffline() lists what is kept for offline use
+window.bhcOffline = async () => {
   if (!window.caches) return 'no offline cache in this browser';
   const out = {};
   for (const k of await caches.keys()) {

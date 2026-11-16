@@ -1,9 +1,9 @@
-// Zwart gat camera: all texts on the page, in Dutch (default), English, French and German.
+// Black hole camera: all texts on the page, in Dutch (default), English, French and German.
 // {name} is filled in by the page. Texts with <b> are shown as HTML; keep the tags.
 // A missing text in a language falls back to Dutch.
 // After changing this file, raise the ?v= number where index.html loads it (otherwise
 // browsers may keep showing the old texts for a while).
-window.ZGC_TEXT = {
+window.BHC_TEXT = {
 nl: {
   title: `Zwart gat camera`,
   metaDesc: `Bekijk jezelf door een draaiend zwart gat: je camerabeeld wordt live afgebogen volgens de algemene relativiteitstheorie.`,
@@ -98,9 +98,9 @@ nl: {
   plateOk: `Alles wat verschilt van de vastgelegde achtergrond blijft zichtbaar. Schuif "Gevoeligheid" hoger als er stukken van jou wegvallen, lager als er vlekken van de kamer blijven staan.`,
   plateNeed: `Klik op "Lege achtergrond vastleggen" en stap even uit beeld. De camera moet daarna stil blijven staan.`,
   pickBanner: `Klik of tik in het beeld op de achtergrond (het groene scherm).`,
-  cr_aarde: `Foto: NASA, Apollo 17 (1972).`, cr_aardopgang: `Foto: NASA, Bill Anders, Apollo 8 (1968).`,
-  cr_maan: `Foto: NASA, Apollo 11 (1969).`, cr_pilaren: `Foto: NASA, ESA en het Hubble Heritage Team (2014).`,
-  'cr_diep-heelal': `Foto: NASA en ESA, Hubble Ultra Deep Field (2004).`,
+  cr_earth: `Foto: NASA, Apollo 17 (1972).`, cr_earthrise: `Foto: NASA, Bill Anders, Apollo 8 (1968).`,
+  cr_moon: `Foto: NASA, Apollo 11 (1969).`, cr_pillars: `Foto: NASA, ESA en het Hubble Heritage Team (2014).`,
+  'cr_deep-field': `Foto: NASA en ESA, Hubble Ultra Deep Field (2004).`,
   lensed: `De foto hangt waar je kamer was, en wordt samen met jou afgebogen door het zwarte gat.`,
   bdStarsNote: `Waar je achtergrond was, kijk je door naar de sterrenhemel rond het zwarte gat.`,
   bdOwnNeed: `Kies een afbeelding op je computer. Ze blijft op je toestel.`, bdOwnNote: `Je eigen afbeelding.`,
@@ -222,9 +222,9 @@ en: {
   plateOk: `Everything that differs from the recorded background stays visible. Move "Sensitivity" up if parts of you disappear, down if patches of the room remain.`,
   plateNeed: `Click "Record the empty background" and step out of view for a moment. The camera must then stay still.`,
   pickBanner: `Click or tap on the background in the picture (the green screen).`,
-  cr_aarde: `Photo: NASA, Apollo 17 (1972).`, cr_aardopgang: `Photo: NASA, Bill Anders, Apollo 8 (1968).`,
-  cr_maan: `Photo: NASA, Apollo 11 (1969).`, cr_pilaren: `Photo: NASA, ESA and the Hubble Heritage Team (2014).`,
-  'cr_diep-heelal': `Photo: NASA and ESA, Hubble Ultra Deep Field (2004).`,
+  cr_earth: `Photo: NASA, Apollo 17 (1972).`, cr_earthrise: `Photo: NASA, Bill Anders, Apollo 8 (1968).`,
+  cr_moon: `Photo: NASA, Apollo 11 (1969).`, cr_pillars: `Photo: NASA, ESA and the Hubble Heritage Team (2014).`,
+  'cr_deep-field': `Photo: NASA and ESA, Hubble Ultra Deep Field (2004).`,
   lensed: `The picture hangs where your room was, and is bent by the black hole together with you.`,
   bdStarsNote: `Where your background was, you look through to the starry sky around the black hole.`,
   bdOwnNeed: `Choose a picture on your computer. It stays on your device.`, bdOwnNote: `Your own picture.`,
@@ -346,9 +346,9 @@ fr: {
   plateOk: `Tout ce qui diffère de l'arrière-plan enregistré reste visible. Augmentez la « Sensibilité » si des parties de vous disparaissent, diminuez-la s'il reste des taches de la pièce.`,
   plateNeed: `Cliquez sur « Enregistrer l'arrière-plan vide » et sortez un instant du champ. La caméra doit ensuite rester immobile.`,
   pickBanner: `Cliquez ou touchez l'arrière-plan dans l'image (l'écran vert).`,
-  cr_aarde: `Photo : NASA, Apollo 17 (1972).`, cr_aardopgang: `Photo : NASA, Bill Anders, Apollo 8 (1968).`,
-  cr_maan: `Photo : NASA, Apollo 11 (1969).`, cr_pilaren: `Photo : NASA, ESA et l'équipe Hubble Heritage (2014).`,
-  'cr_diep-heelal': `Photo : NASA et ESA, Hubble Ultra Deep Field (2004).`,
+  cr_earth: `Photo : NASA, Apollo 17 (1972).`, cr_earthrise: `Photo : NASA, Bill Anders, Apollo 8 (1968).`,
+  cr_moon: `Photo : NASA, Apollo 11 (1969).`, cr_pillars: `Photo : NASA, ESA et l'équipe Hubble Heritage (2014).`,
+  'cr_deep-field': `Photo : NASA et ESA, Hubble Ultra Deep Field (2004).`,
   lensed: `L'image est placée là où se trouvait votre pièce, et elle est déviée par le trou noir en même temps que vous.`,
   bdStarsNote: `Là où se trouvait votre arrière-plan, vous voyez à travers le ciel étoilé autour du trou noir.`,
   bdOwnNeed: `Choisissez une image sur votre ordinateur. Elle reste sur votre appareil.`, bdOwnNote: `Votre propre image.`,
@@ -470,9 +470,9 @@ de: {
   plateOk: `Alles, was sich vom aufgenommenen Hintergrund unterscheidet, bleibt sichtbar. Schiebe „Empfindlichkeit“ höher, wenn Teile von dir verschwinden, niedriger, wenn Flecken vom Raum stehen bleiben.`,
   plateNeed: `Klicke auf „Leeren Hintergrund aufnehmen“ und geh kurz aus dem Bild. Die Kamera muss danach stillstehen.`,
   pickBanner: `Klicke oder tippe im Bild auf den Hintergrund (den Greenscreen).`,
-  cr_aarde: `Foto: NASA, Apollo 17 (1972).`, cr_aardopgang: `Foto: NASA, Bill Anders, Apollo 8 (1968).`,
-  cr_maan: `Foto: NASA, Apollo 11 (1969).`, cr_pilaren: `Foto: NASA, ESA und das Hubble Heritage Team (2014).`,
-  'cr_diep-heelal': `Foto: NASA und ESA, Hubble Ultra Deep Field (2004).`,
+  cr_earth: `Foto: NASA, Apollo 17 (1972).`, cr_earthrise: `Foto: NASA, Bill Anders, Apollo 8 (1968).`,
+  cr_moon: `Foto: NASA, Apollo 11 (1969).`, cr_pillars: `Foto: NASA, ESA und das Hubble Heritage Team (2014).`,
+  'cr_deep-field': `Foto: NASA und ESA, Hubble Ultra Deep Field (2004).`,
   lensed: `Das Bild hängt dort, wo dein Raum war, und wird zusammen mit dir vom Schwarzen Loch abgelenkt.`,
   bdStarsNote: `Wo dein Hintergrund war, schaust du hindurch auf den Sternenhimmel um das Schwarze Loch.`,
   bdOwnNeed: `Wähle ein Bild auf deinem Computer. Es bleibt auf deinem Gerät.`, bdOwnNote: `Dein eigenes Bild.`,

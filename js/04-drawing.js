@@ -1,8 +1,8 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 04: drawing size and shader inputs
+   Black hole camera — 04: drawing size and shader inputs
    -------------------------------------------------------------------------------------
    - picture size: how many pixels are drawn (picture quality), kept up to date with the
      window size;
@@ -115,7 +115,7 @@ function setUniforms(P){
   set1('uCamRot', useVideo ? camRot : 0);
 
   // background picture: cover the camera image, keep the picture's proportions
-  set1('uUseBackdrop', bdReady && bdChoice.value !== 'sterren' && bgMode.value !== 'off' ? 1 : 0);
+  set1('uUseBackdrop', bdReady && bdChoice.value !== 'stars' && bgMode.value !== 'off' ? 1 : 0);
   if (P.u.uBdScale) {
     const r = bdAspect/camAspect;
     gl.uniform2f(P.u.uBdScale, r > 1 ? 1 : r, r > 1 ? 1/r : 1);

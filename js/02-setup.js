@@ -1,10 +1,10 @@
 'use strict';
 
 /* =====================================================================================
-   Zwart gat camera — 02: setup
+   Black hole camera — 02: setup
    -------------------------------------------------------------------------------------
    Everything the other files build on:
-     - languages: t('key') gives a text in the current language (texts in teksten.js);
+     - languages: t('key') gives a text in the current language (texts in texts.js);
      - WebGL: the drawing context, the shader programs, the textures (camera picture,
        star sky, person mask, background picture);
      - the generated star sky and the demo picture (shown until the camera is switched on);
@@ -15,7 +15,7 @@
      The files in js/ are plain scripts, loaded in order by index.html. Names declared at
      the top level of one file (const, let, function) are visible in all later files.
      If WebGL is missing, this file stops with a message on screen and does not set
-     window.ZGC_READY; every later file checks that flag first and then stops too.
+     window.BHC_READY; every later file checks that flag first and then stops too.
      A top-level statement may only use what earlier files (or the same file, above it)
      declared; functions may refer to anything, since they only run after start-up.
 
@@ -27,7 +27,7 @@
      remembered:       restored at start and written by save() (03); language (02); camera
                        on / which camera (05); settings hidden (06); the PIN in its own key (06);
                        own background picture and photo folder in IndexedDB (08)
-     texts:            teksten.js; applyStaticText() (02); setLang() (10) redraws the texts
+     texts:            texts.js; applyStaticText() (02); setLang() (10) redraws the texts
                        that the code itself makes
 
    Glossary
@@ -36,19 +36,17 @@
      dock     the tap controls at the right edge (spin, size, background picture)
      keep...  the ticks "visible when the settings are hidden" (keepSpin, keepLang, ...)
      shot     a photo;  el(id) = document.getElementById(id) (03)
-     option values in Dutch: 'sterren' = star sky, 'eigen' = own picture
+     background picture choice: 'stars' = star sky, 'own' = own picture, else a file in backgrounds/
    ===================================================================================== */
 
-// localStorage key of the remembered settings. Old folder name on purpose: same origin, so
-// stand settings survive the move to /bh-camera/
-const KEY = 'zwart-gat-camera-instellingen';
+const KEY = 'bh-camera-settings';              // localStorage key of the remembered settings
 const canvas = document.getElementById('c');
 const msg = document.getElementById('msg');
 
 
-// ---------- languages (all texts are in teksten.js) ----------
+// ---------- languages (all texts are in texts.js) ----------
 
-const TXT = window.ZGC_TEXT || {nl: {}};
+const TXT = window.BHC_TEXT || {nl: {}};
 let lang = 'nl';
 
 // the language remembered from last time (read here already, so the first texts are right)
@@ -100,7 +98,7 @@ function fail(m){
 let gl = canvas.getContext('webgl2', {antialias:false, premultipliedAlpha:false});
 const isGL2 = !!gl;
 if (!gl) gl = canvas.getContext('webgl', {antialias:false, premultipliedAlpha:false});
-if (!gl) { fail(t('noWebGL')); throw new Error('Zwart gat camera: no WebGL'); }
+if (!gl) { fail(t('noWebGL')); throw new Error('Black hole camera: no WebGL'); }
 
 
 // ---------- shaders ----------
@@ -142,7 +140,7 @@ try {
   progDirect = program('');
   progRaw = program('#define RAW_PASS\n');
 }
-catch (e) { console.error(e); fail(t('glFail')); throw new Error('Zwart gat camera: shaders did not compile'); }
+catch (e) { console.error(e); fail(t('glFail')); throw new Error('Black hole camera: shaders did not compile'); }
 
 // one rectangle covering the whole screen: the fragment shader does all the work
 const buf = gl.createBuffer();
@@ -337,4 +335,4 @@ function allocMap(w, h){
 
 
 // all set: the next files may run (each of them checks this first)
-window.ZGC_READY = true;
+window.BHC_READY = true;

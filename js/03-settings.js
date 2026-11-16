@@ -1,8 +1,8 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 03: settings
+   Black hole camera — 03: settings
    -------------------------------------------------------------------------------------
    The controls of the settings panel that the drawing depends on, the remembered
    settings (read at start, written by save() after every change), and the value labels

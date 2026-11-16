@@ -1,7 +1,7 @@
 'use strict';
 
 /* =====================================================================================
-   Zwart gat camera — 01: the lensing shader (GLSL)
+   Black hole camera — 01: the lensing shader (GLSL)
    -------------------------------------------------------------------------------------
    The whole picture is drawn by this one fragment shader. 02-setup.js compiles it into
    several programs by putting a #define in front of it:

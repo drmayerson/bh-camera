@@ -57,7 +57,7 @@ Open the Worker. It has a row of tabs at the top:
 3. Click **Deploy** (or **Save and deploy**) at the bottom.
 
 Check: opening the Worker address in a browser shows
-"Zwart gat camera: fotodienst actief."
+"Black hole camera: photo service running."
 
 ## 5. Set up the booth computer
 

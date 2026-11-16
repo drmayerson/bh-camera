@@ -1,4 +1,4 @@
-// Zwart gat camera: photo service for the QR-code download mode (a Cloudflare Worker).
+// Black hole camera: photo service for the QR-code download mode (a Cloudflare Worker).
 // See SETUP.md in this folder for the step-by-step setup.
 //
 // Bindings (Worker -> Settings -> Bindings / Variables and Secrets):
@@ -35,9 +35,9 @@ export default {
       if ((req.headers.get('Content-Type') || '').split(';')[0].trim() !== 'image/jpeg') return json({error: 'alleen JPEG'}, 415, cors);
       const body = await req.arrayBuffer(), b = new Uint8Array(body);
       if (body.byteLength > MAX_BYTES) return json({error: 'foto te groot'}, 413, cors);
-      if (body.byteLength < 100 || b[0] !== 0xFF || b[1] !== 0xD8 || b[2] !== 0xFF) return json({error: 'geen JPEG'}, 415, cors);
+      if (body.byteLength < 100 || b[0] !== 0xFF || b[1] !== 0xD8 || b[2] !== 0xFF) return json({error: 'not a JPEG'}, 415, cors);
       const now = Date.now(), id = now.toString(36) + '.' + randomPart();
-      const name = (req.headers.get('X-Photo-Name') || 'zwart-gat.jpg').replace(/[^\w.-]/g, '').slice(0, 80) || 'zwart-gat.jpg';
+      const name = (req.headers.get('X-Photo-Name') || 'black-hole.jpg').replace(/[^\w.-]/g, '').slice(0, 80) || 'black-hole.jpg';
       await st.put(id, body, name);
       return json({id, page: url.origin + '/p/' + id, expires: now + KEEP_MS}, 200, cors);
     }
@@ -58,7 +58,7 @@ export default {
       const disp = url.searchParams.has('download') ? 'attachment' : 'inline';
       return new Response(obj.body, {headers: privateHeaders({
         'Content-Type': 'image/jpeg',
-        'Content-Disposition': disp + '; filename="' + (obj.name || 'zwart-gat.jpg') + '"',
+        'Content-Disposition': disp + '; filename="' + (obj.name || 'black-hole.jpg') + '"',
         'Cache-Control': 'private, max-age=3600'})});
     }
 
@@ -74,8 +74,8 @@ export default {
         headers: privateHeaders({'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store'})});
     }
 
-    if (url.pathname === '/' && req.method === 'GET') return new Response('Zwart gat camera: fotodienst actief.', {headers: privateHeaders({'Content-Type': 'text/plain; charset=utf-8'})});
-    return new Response('Niet gevonden.', {status: 404, headers: privateHeaders({'Content-Type': 'text/plain; charset=utf-8'})});
+    if (url.pathname === '/' && req.method === 'GET') return new Response('Black hole camera: photo service running.', {headers: privateHeaders({'Content-Type': 'text/plain; charset=utf-8'})});
+    return new Response('Not found.', {status: 404, headers: privateHeaders({'Content-Type': 'text/plain; charset=utf-8'})});
   }
 };
 

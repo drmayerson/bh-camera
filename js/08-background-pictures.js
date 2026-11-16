@@ -1,13 +1,13 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 08: background pictures
+   Black hole camera — 08: background pictures
    -------------------------------------------------------------------------------------
    - a small key-value store in IndexedDB, for things too large or too special for
      localStorage: the own background picture and the chosen photo folder;
    - the background picture shown where the background was removed: the star sky, one of
-     the pictures in achtergronden/, or your own picture.
+     the pictures in backgrounds/, or your own picture.
    ===================================================================================== */
 
 
@@ -15,7 +15,7 @@ if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the m
 
 function idbOpen(){
   return new Promise((res, rej) => {
-    const r = indexedDB.open('zwart-gat-camera', 1);
+    const r = indexedDB.open('bh-camera', 1);
     r.onupgradeneeded = () => r.result.createObjectStore('kv');
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
@@ -48,13 +48,13 @@ async function idbSet(k, v){
 // the black hole) or a picture that hangs where your room was, lensed together with you.
 
 const BACKDROPS = {
-  'aarde':       {src: 'achtergronden/aarde.jpg'},
-  'aardopgang':  {src: 'achtergronden/aardopgang.jpg'},
-  'maan':        {src: 'achtergronden/maan.jpg'},
-  'pilaren':     {src: 'achtergronden/pilaren.jpg'},
-  'diep-heelal': {src: 'achtergronden/diep-heelal.jpg'},
+  'earth':      {src: 'backgrounds/earth.jpg'},
+  'earthrise':  {src: 'backgrounds/earthrise.jpg'},
+  'moon':       {src: 'backgrounds/moon.jpg'},
+  'pillars':    {src: 'backgrounds/pillars.jpg'},
+  'deep-field': {src: 'backgrounds/deep-field.jpg'},
 };
-const bdChoice = el('bdChoice');          // 'sterren' (star sky), a key of BACKDROPS, or 'eigen' (own picture)
+const bdChoice = el('bdChoice');          // 'stars' (star sky), a key of BACKDROPS, or 'own' (own picture)
 // bdReady: the picture is in the texture; bdAspect: its height/width;
 // bdLoadId: number of the latest request (an older picture that arrives late is ignored)
 let bdReady = false, bdAspect = 1, bdLoadId = 0;
@@ -89,11 +89,11 @@ function loadImage(url){
 // load the chosen picture (asynchronously; until it is there, the star sky is shown)
 async function backdropChanged(){
   const c = bdChoice.value, id = ++bdLoadId;
-  el('bdOwnRow').hidden = c !== 'eigen';
+  el('bdOwnRow').hidden = c !== 'own';
   bdReady = false;
-  if (c === 'sterren') { bdNote(() => t('bdStarsNote')); save(); return; }
+  if (c === 'stars') { bdNote(() => t('bdStarsNote')); save(); return; }
   try {
-    if (c === 'eigen') {
+    if (c === 'own') {
       const blob = ownBlob || await idbGet('ownBackdrop').catch(() => null);
       if (blob) ownBlob = blob;
       if (!blob) { bdNote(() => t('bdOwnNeed')); save(); return; }
@@ -117,7 +117,7 @@ async function backdropChanged(){
 // choosing "own picture" without having one opens the file chooser right away
 bdChoice.addEventListener('change', () => {
   backdropChanged();
-  if (bdChoice.value === 'eigen' && !ownBlob) idbGet('ownBackdrop').then(b => {
+  if (bdChoice.value === 'own' && !ownBlob) idbGet('ownBackdrop').then(b => {
     if (!b) el('bdFile').click();
   }).catch(() => el('bdFile').click());
 });
@@ -138,7 +138,7 @@ el('bdFile').addEventListener('change', async e => {
     const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.9));
     ownBlob = blob;
     if (el('remember').checked) await idbSet('ownBackdrop', blob).catch(err => console.warn('could not keep the picture', err));
-    bdChoice.value = 'eigen'; setBackdrop(c); bdLoadId++;
+    bdChoice.value = 'own'; setBackdrop(c); bdLoadId++;
     el('bdOwnRow').hidden = false;
     bdNote(() => t('bdOwnNote') + ' ' + t('lensed'));
     save();

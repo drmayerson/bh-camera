@@ -1,8 +1,8 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 06: settings panel and visitor controls
+   Black hole camera — 06: settings panel and visitor controls
    -------------------------------------------------------------------------------------
    - opening and closing the settings (gear button bottom left);
    - the tap controls at the right edge (spin, size, background picture), shown while
@@ -78,7 +78,7 @@ el('dockReset').addEventListener('click', () => { spin.value = 0.9; mass.value =
 
 // background pictures to step through: the built-in ones, plus your own if there is one
 function bdList(){
-  return Array.from(el('bdChoice').options).map(o => o.value).filter(v => v !== 'eigen' || ownBlob);
+  return Array.from(el('bdChoice').options).map(o => o.value).filter(v => v !== 'own' || ownBlob);
 }
 function stepBackdrop(dir){
   const list = bdList(), sel = el('bdChoice');

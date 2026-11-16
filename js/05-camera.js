@@ -1,8 +1,8 @@
 'use strict';
-if (!window.ZGC_READY) throw new Error('Zwart gat camera: not started (see the message on screen)');
+if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Zwart gat camera — 05: camera and expo helpers
+   Black hole camera — 05: camera and expo helpers
    -------------------------------------------------------------------------------------
    - the webcam: start (1080p where possible), choose between several cameras, reconnect
      after it was unplugged, go back to the demo picture;
