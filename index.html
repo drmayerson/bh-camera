@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;500;700&display=swap">
 <!-- ?v=: raise this number whenever texts.js changes, so browsers fetch the new texts -->
-<script src="texts.js?v=2026111703"></script>
+<script src="texts.js?v=2026111704"></script>
 <!-- page styles; ?v=: raise it whenever style.css changes -->
-<link rel="stylesheet" href="style.css?v=2026111703">
+<link rel="stylesheet" href="style.css?v=2026111704">
 </head>
 <body>
 <!-- the picture: the camera image, bent by the black hole (drawn by the shader) -->
@@ -131,9 +131,9 @@
     <button data-lang="nl" aria-pressed="true">NL</button><button data-lang="en" aria-pressed="false">EN</button><button data-lang="fr" aria-pressed="false">FR</button><button data-lang="de" aria-pressed="false">DE</button>
   </div>
   <div class="btns">
-    <button id="camBtn" class="primary" data-t="camOn">Camera aan</button>
-    <button id="demoBtn" data-t="demo">Voorbeeldbeeld</button>
-    <button id="fsBtn" data-t="fullscreen">Volledig scherm</button>
+    <button id="camBtn" data-t="camOn" aria-pressed="false">Camera aan</button>
+    <button id="demoBtn" class="primary" data-t="demo" aria-pressed="true">Voorbeeldbeeld</button>
+    <button id="fsBtn" data-t="fullscreen" aria-pressed="false">Volledig scherm</button>
   </div>
   <label id="camPickRow" hidden>
     <span data-t="camPick">Camera</span>
@@ -276,57 +276,58 @@
 
   <fieldset>
     <legend data-t="photosLegend">Foto's</legend>
+    <p class="group-title" data-t="shotHow">Een foto nemen</p>
     <label class="check">
       <input type="checkbox" id="shotsOn">
-      <span data-t="shotsOn">Klik in het beeld of druk op een pijltjestoets om een foto te maken (zonder de instellingen)</span>
+      <span data-t="shotsOn">Klik of tik in het beeld, of druk op een pijltjestoets (ook met een presenter)</span>
     </label>
-    <div class="sub" id="shotSub" hidden>
-      <label class="check">
-        <input type="checkbox" id="shotCount">
-        <span data-t="shotCount">Aftellen voor de foto (3, 2, 1… klik!)</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" id="handOn">
-        <span data-t="handOn">Hand opsteken voor een foto (zonder aanraken; met aftellen)</span>
-      </label>
-      <p class="hint indent" id="handNote" hidden></p>
-      <label class="check">
-        <input type="checkbox" id="shotLocal" checked>
-        <span data-t="shotLocal">Opslaan op deze computer</span>
-      </label>
-      <div class="sub indent" id="shotLocalSub">
-        <p class="hint"><span data-t="saveIn">Opslaan in:</span> <b id="shotDirName">Downloads</b></p>
-        <div class="btns">
-          <button id="shotDirBtn" data-t="shotDirBtn">Kies een map (opslaan zonder vragen)…</button>
-          <button id="shotDirReset" data-t="shotDirReset" hidden>Terug naar Downloads</button>
-        </div>
-        <p class="hint" id="shotNote"></p>
+    <label class="check">
+      <input type="checkbox" id="handOn">
+      <span data-t="handOn">Hand opsteken (zonder aanraken)</span>
+    </label>
+    <p class="hint indent" id="handNote" hidden></p>
+    <label class="check">
+      <input type="checkbox" id="shotCount">
+      <span data-t="shotCount">Aftellen voor de foto (3, 2, 1… klik!); bij hand opsteken altijd</span>
+    </label>
+    <p class="hint" id="shotNone" data-t="shotNone">Er worden geen foto's gemaakt zolang hierboven niets aangevinkt is.</p>
+    <p class="group-title" data-t="shotWhat">Met de foto</p>
+    <label class="check">
+      <input type="checkbox" id="shotLocal" checked>
+      <span data-t="shotLocal">Opslaan op deze computer</span>
+    </label>
+    <div class="sub indent" id="shotLocalSub">
+      <p class="hint"><span data-t="saveIn">Opslaan in:</span> <b id="shotDirName">Downloads</b></p>
+      <div class="btns">
+        <button id="shotDirBtn" data-t="shotDirBtn">Kies een map (opslaan zonder vragen)…</button>
+        <button id="shotDirReset" data-t="shotDirReset" hidden>Terug naar Downloads</button>
       </div>
-      <label class="check">
-        <input type="checkbox" id="shotQR">
-        <span data-t="shotQR">QR-code tonen, zodat bezoekers hun foto op hun telefoon kunnen downloaden</span>
+      <p class="hint" id="shotNote"></p>
+    </div>
+    <label class="check">
+      <input type="checkbox" id="shotQR">
+      <span data-t="shotQR">QR-code tonen, zodat bezoekers hun foto op hun telefoon kunnen downloaden</span>
+    </label>
+    <div class="sub indent" id="shotQRSub" hidden>
+      <label>
+        <span data-t="qrBase">Adres van de fotodienst</span>
+        <input type="url" id="qrBase" placeholder="https://zwart-gat-fotos.jouwnaam.workers.dev" data-t-attr="placeholder:qrBasePh" spellcheck="false" autocomplete="off">
       </label>
-      <div class="sub indent" id="shotQRSub" hidden>
-        <label>
-          <span data-t="qrBase">Adres van de fotodienst</span>
-          <input type="url" id="qrBase" placeholder="https://zwart-gat-fotos.jouwnaam.workers.dev" data-t-attr="placeholder:qrBasePh" spellcheck="false" autocomplete="off">
-        </label>
-        <label>
-          <span data-t="qrKey">Standsleutel</span>
-          <input type="password" id="qrKey" autocomplete="off">
-        </label>
-        <label>
-          <span class="lab"><span data-t="qrSec">QR-code blijft zichtbaar</span><span id="qrSecVal"></span></span>
-          <input type="range" id="qrSec" min="5" max="125" step="5" value="30" aria-describedby="qrSecHint">
-        </label>
-        <p class="hint" id="qrSecHint" data-t="qrSecHint">Tot de volgende foto, of hooguit zo lang. Helemaal rechts: blijft staan tot de volgende foto.</p>
-        <label class="check">
-          <input type="checkbox" id="qrAgainOn" checked>
-          <span data-t="qrAgainOn">Knop "QR" voor eerdere QR-codes tonen (uitzetten als er geen toezicht is)</span>
-        </label>
-        <div class="btns"><button id="qrTest" data-t="qrTest">Verbinding testen</button></div>
-        <p class="hint" id="qrNote"></p>
-      </div>
+      <label>
+        <span data-t="qrKey">Standsleutel</span>
+        <input type="password" id="qrKey" autocomplete="off">
+      </label>
+      <label>
+        <span class="lab"><span data-t="qrSec">QR-code blijft zichtbaar</span><span id="qrSecVal"></span></span>
+        <input type="range" id="qrSec" min="5" max="125" step="5" value="30" aria-describedby="qrSecHint">
+      </label>
+      <p class="hint" id="qrSecHint" data-t="qrSecHint">Tot de volgende foto, of hooguit zo lang. Helemaal rechts: blijft staan tot de volgende foto.</p>
+      <label class="check">
+        <input type="checkbox" id="qrAgainOn" checked>
+        <span data-t="qrAgainOn">Knop "QR" voor eerdere QR-codes tonen (uitzetten als er geen toezicht is)</span>
+      </label>
+      <div class="btns"><button id="qrTest" data-t="qrTest">Verbinding testen</button></div>
+      <p class="hint" id="qrNote"></p>
     </div>
   </fieldset>
 
@@ -378,18 +379,18 @@
      Names declared at the top level of one file are visible in the files after it.
      ?v=: raise this number whenever a file in js/ changes, so browsers fetch the new
      version instead of an old copy. Keep this list in step with CORE in sw.js. -->
-<script src="js/01-lensing-shader.js?v=2026111703"></script>
-<script src="js/02-setup.js?v=2026111703"></script>
-<script src="js/03-settings.js?v=2026111703"></script>
-<script src="js/04-drawing.js?v=2026111703"></script>
-<script src="js/05-camera.js?v=2026111703"></script>
-<script src="js/06-panel.js?v=2026111703"></script>
-<script src="js/07-background-removal.js?v=2026111703"></script>
-<script src="js/08-background-pictures.js?v=2026111703"></script>
-<script src="js/09-photos.js?v=2026111703"></script>
-<script src="js/10-hand-photo.js?v=2026111703"></script>
-<script src="js/11-physics-points.js?v=2026111703"></script>
-<script src="js/12-main.js?v=2026111703"></script>
+<script src="js/01-lensing-shader.js?v=2026111704"></script>
+<script src="js/02-setup.js?v=2026111704"></script>
+<script src="js/03-settings.js?v=2026111704"></script>
+<script src="js/04-drawing.js?v=2026111704"></script>
+<script src="js/05-camera.js?v=2026111704"></script>
+<script src="js/06-panel.js?v=2026111704"></script>
+<script src="js/07-background-removal.js?v=2026111704"></script>
+<script src="js/08-background-pictures.js?v=2026111704"></script>
+<script src="js/09-photos.js?v=2026111704"></script>
+<script src="js/10-hand-photo.js?v=2026111704"></script>
+<script src="js/11-physics-points.js?v=2026111704"></script>
+<script src="js/12-main.js?v=2026111704"></script>
 
 </body>
 </html>

@@ -65,7 +65,8 @@ Check: opening the Worker address in a browser shows
 
 On the booth computer, open the camera page, then in **Instellingen → Foto's**:
 
-1. Tick **Klik in het beeld … om een foto te maken** and **QR-code tonen**.
+1. Under *Een foto nemen*, tick how photos are taken (**Klik of tik in het beeld…** and/or
+   **Hand opsteken**); under *Met de foto*, tick **QR-code tonen**.
 2. **Adres van de fotodienst**: the Worker address from step 3.
 3. **Standsleutel**: the `BOOTH_KEY` from step 4.
 4. Click **Verbinding testen**. It should say "Verbinding in orde".

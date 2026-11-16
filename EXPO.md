@@ -78,7 +78,7 @@ folder permissions are already granted.
 |---|---|
 | Take a photo | click in the picture, arrow key, PageUp/PageDown (presenter remote) |
 | Countdown 3-2-1 | tick *Aftellen voor de foto* in Settings |
-| Photo without touching | tick *Hand opsteken voor een foto*: an open hand held up to the camera for about half a second starts the countdown (a hint at the bottom of the screen tells visitors) |
+| Photo without touching | tick *Hand opsteken* (under *Een foto nemen*): an open hand held up to the camera for about half a second starts the countdown (a hint at the bottom of the screen tells visitors) |
 | Physics explanation | the pulsing rings on the picture (option *Uitlegpunten in het beeld*, on by default): tap one for what the light did there |
 | Show recent QR codes again | key **Q** or the small **QR** button bottom right (press again for older ones) |
 | Hide QR code / cancel countdown | **Esc** |
@@ -108,7 +108,7 @@ Everything a visitor can do is a tap: take a photo (tap the picture; with countd
 ticked), close the QR code (×), re-show a QR code (only if allowed, see below), the arrows at
 the right edge (spin, size, background picture; hold to repeat), the language buttons top
 right, the (i) explanation and the physics explanation points. None of it needs hover, a
-right click or a key. With *Hand opsteken voor een foto*, a photo needs no touching at all.
+right click or a key. With *Hand opsteken*, a photo needs no touching at all.
 
 Checked here:
 
@@ -153,7 +153,7 @@ general upload error.
 
 - Posters, statues or mannequins that look like people may stay visible in booth mode.
 - Booth mode needs a fixed camera; if it is bumped, press *Opnieuw leren* (relearn).
-- *Hand opsteken voor een foto* recognises hands up to about 2–3 m from the camera, and was
+- *Hand opsteken* recognises hands up to about 2–3 m from the camera, and was
   tested here without a real hand (the recognition runs; whether it fires reliably at your
   booth must be tried with the real camera). It runs on the processor alongside booth mode;
   check `bhcStats()` for the frame rate with both on.

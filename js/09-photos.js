@@ -19,7 +19,10 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
 
 // ---------- photo settings ----------
 
+// Two independent ways to take a photo: shotsOn (click / tap in the picture, arrow keys)
+// and a raised hand (handOn, 10-hand-photo.js). Photos are on when either is ticked.
 const shotsOn = el('shotsOn'), shotLocal = el('shotLocal'), shotQR = el('shotQR');
+function photosOn(){ return shotsOn.checked || el('handOn').checked; }
 const qrBase = el('qrBase'), qrKey = el('qrKey');            // address and key of the photo service
 const canPickDir = typeof window.showDirectoryPicker === 'function';   // Chrome/Edge: save in a chosen folder
 // shotDir: the chosen folder (or null: Downloads); shotPending: grab the next frame;
@@ -28,8 +31,8 @@ let shotDir = null, shotPending = false, shotBusy = false;
 
 // show the options that apply, and the right notes
 function updateShotUI(){
-  document.body.classList.toggle('shots', shotsOn.checked);
-  el('shotSub').hidden = !shotsOn.checked;
+  document.body.classList.toggle('shots', shotsOn.checked);   // (mouse pointer for clicking a photo)
+  el('shotNone').hidden = photosOn();
   el('shotLocalSub').hidden = !shotLocal.checked;
   el('shotQRSub').hidden = !shotQR.checked;
   el('shotDirName').textContent = shotDir ? shotDir.name : t('downloads');
@@ -46,7 +49,7 @@ function qrConfigured(){ return /^https?:\/\/\S+$/.test(qrBase.value.trim()) && 
 
 el('shotCount').addEventListener('change', save);
 el('qrAgainOn').addEventListener('change', () => { updateQrAgain(); save(); });
-[shotsOn, shotLocal, shotQR].forEach(c => c.addEventListener('change', () => { if (!shotsOn.checked || !shotQR.checked) hideQR(); updateShotUI(); save(); }));
+[shotsOn, shotLocal, shotQR].forEach(c => c.addEventListener('change', () => { if (!photosOn() || !shotQR.checked) hideQR(); updateShotUI(); save(); }));
 [qrBase, qrKey].forEach(c => c.addEventListener('input', () => { qrNoteSticky = false; updateShotUI(); save(); }));
 
 // choosing the photo folder (remembered in IndexedDB)
@@ -333,22 +336,23 @@ function showQrAgain(){
 }
 
 // re-showing earlier QR codes can be switched off: without staff, anyone could open earlier visitors' photos
-function updateQrAgain(){ el('qrAgain').hidden = !(shotsOn.checked && shotQR.checked && el('qrAgainOn').checked && qrHistory.length); }
+function updateQrAgain(){ el('qrAgain').hidden = !(photosOn() && shotQR.checked && el('qrAgainOn').checked && qrHistory.length); }
 el('qrAgain').addEventListener('click', showQrAgain);
 el('qrClose').addEventListener('click', hideQR);
 
 
 // ---------- keys ----------
-// Arrow keys also take a photo (handy with a presenter remote or a big button at a booth);
-// Q shows recent QR codes again; Escape hides the QR code. Not while a slider, menu or
-// text field has the focus: there these keys keep their usual job.
+// Arrow keys also take a photo, together with the click (handy with a presenter remote or a
+// big button at a booth); Q shows recent QR codes again and Escape hides the QR code
+// whenever photos are on. Not while a slider, menu or text field has the focus: there
+// these keys keep their usual job.
 
 document.addEventListener('keydown', e => {
-  if (!shotsOn.checked || picking || e.repeat || e.altKey || e.ctrlKey || e.metaKey || !el('pinPad').hidden) return;
+  if (!photosOn() || picking || e.repeat || e.altKey || e.ctrlKey || e.metaKey || !el('pinPad').hidden) return;
   const t = e.target;
   if (t && (t.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName))) return;
   // arrow keys, and PageUp/PageDown, which is what most presenter remotes send
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown'].includes(e.key)) { e.preventDefault(); takeShot(); }
+  if (shotsOn.checked && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown'].includes(e.key)) { e.preventDefault(); takeShot(); }
   else if ((e.key === 'q' || e.key === 'Q') && shotQR.checked && el('qrAgainOn').checked) { e.preventDefault(); showQrAgain(); }
   else if (e.key === 'Escape') { hideQR(); hideInfo(); if (countCancel) countCancel(); }
 });

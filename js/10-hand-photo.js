@@ -4,7 +4,7 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
 /* =====================================================================================
    Black hole camera — 10: raise a hand for a photo (no touching)
    -------------------------------------------------------------------------------------
-   With "Hand opsteken voor een foto" ticked (and photos on, camera on), a visitor holds
+   With "Hand opsteken" ticked under Foto's (and the camera on), a visitor holds
    an open hand up to the camera for about half a second: the photo countdown starts, and
    the photo is taken (and its QR code shown) as with a click.
 
@@ -130,13 +130,13 @@ function updateHandNote(){
 
 // the hint for visitors at the bottom of the screen
 function updateHandHint(){
-  el('handHint').hidden = !(handReady && handOn.checked && shotsOn.checked && useVideo &&
+  el('handHint').hidden = !(handReady && handOn.checked && useVideo &&
                             panel.classList.contains('hidden') && !counting && el('qrBox').hidden);
 }
 
 // every HAND_EVERY ms: start or stop the worker as needed, and send a frame when free
 setInterval(() => {
-  const want = handOn.checked && shotsOn.checked && useVideo;
+  const want = handOn.checked && useVideo;
   if (want && !handWorker && !handError) startHand();
   else if (!want && handWorker) { stopHand(); updateHandNote(); }
   updateHandNote();
@@ -147,6 +147,7 @@ setInterval(() => {
 handOn.addEventListener('change', () => {
   if (!handOn.checked) stopHand();
   else handError = null;                  // try again
-  updateHandNote(); save();
+  if (!photosOn() || !shotQR.checked) hideQR();
+  updateHandNote(); updateShotUI(); save();
 });
 updateHandNote();

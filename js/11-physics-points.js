@@ -203,8 +203,8 @@ pointsOn.addEventListener('change', () => { probeDirty = true; updateDock(); upd
 // ---------- the drawing on the card ----------
 
 // The path of the light for point k, as a small picture: the camera on the left, the black
-// hole in the middle, you (the camera picture) behind it on the right. Light runs towards
-// the camera (arrow); for the shadow the dashed line is a ray traced back from the camera.
+// hole in the middle, you (the camera picture) behind it on the right. The arrow shows
+// where the light goes.
 const POINT_RAYS = {
   // from you, past the black hole at a distance, into the camera: bent a little
   weak:   'M 264 70 C 220 40, 140 38, 50 72',
@@ -212,8 +212,8 @@ const POINT_RAYS = {
   n1:     'M 16 30 L 160 30 C 226 30, 232 120, 168 120 C 118 120, 78 96, 50 80',
   // from you, once all the way around the black hole, then to the camera
   n2:     'M 264 74 L 170 50 A 25 25 0 1 0 170 100 A 25 25 0 1 0 170 50 C 128 50, 84 62, 50 74',
-  // traced back from the camera: it spirals into the black hole
-  shadow: 'M 50 76 C 100 76, 132 70, 150 64 C 162 60, 176 62, 180 72 C 184 82, 168 86, 166 76'
+  // from you towards the camera, but too close to the black hole: it spirals in
+  shadow: 'M 264 72 C 232 70, 206 58, 190 62 C 178 65, 182 82, 170 82 C 160 82, 158 70, 166 70'
 };
 function pointArt(k){
   const dots = [[62, 18], [98, 132], [128, 20], [232, 134], [250, 16], [292, 100], [206, 142], [114, 104], [292, 30]]
@@ -229,7 +229,7 @@ function pointArt(k){
     '<g fill="#c3b6e0"><circle cx="276" cy="71" r="8"/><path d="M261 100 C 261 76, 291 76, 291 100 z"/></g>' +
     // the camera
     '<g fill="#f3ecff"><rect x="16" y="66" width="22" height="18" rx="3"/><path d="M38 70 L48 64 L48 86 L38 80 z"/></g>' +
-    '<path class="ray' + (k === 'shadow' ? ' traced' : '') + '" d="' + POINT_RAYS[k] + '" marker-end="url(#ptArrow-' + k + ')"/>' +
+    '<path class="ray" d="' + POINT_RAYS[k] + '" marker-end="url(#ptArrow-' + k + ')"/>' +
     '</svg>';
 }
 

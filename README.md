@@ -78,7 +78,8 @@ running."
 
 On the booth computer, open the camera page; in **Instellingen → Foto's**:
 
-1. tick **Klik in het beeld … om een foto te maken** and **QR-code tonen**;
+1. under *Een foto nemen*, tick how photos are taken (click / arrow key, and/or **Hand
+   opsteken**); under *Met de foto*, tick **QR-code tonen**;
 2. **Adres van de fotodienst**: the Worker address from step 3;
 3. **Standsleutel**: the `BOOTH_KEY` from step 4;
 4. click **Verbinding testen**: it should say that the connection is fine.

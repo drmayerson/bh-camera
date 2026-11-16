@@ -952,7 +952,6 @@ input[type=range] {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.ray.traced { stroke-dasharray: 7 5; }        /* traced back from the camera: no light comes this way */
 
 /* visitor button to hide / show the points: next to (i), or in its place when (i) is hidden */
 .points-btn {
@@ -1005,3 +1004,17 @@ input[type=range] {
   background: rgba(255,108,156,.3);
   transform: translateX(-50%) scale(1.08);
 }
+
+
+/* ---------- Photo settings: the two group headings ("Een foto nemen", "Met de foto") ---------- */
+
+.group-title {
+  margin: 4px 0 -4px;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.group-title:first-of-type { margin-top: 0; }

@@ -29,12 +29,18 @@ let camErr = null, camRetry = null;            // text key of the current camera
 
 // note under the camera buttons: the camera problem, or else the privacy note
 function updateCamNote(){
-  el('camNote').textContent = camErr ? t(camErr) : t(el('shotsOn').checked && el('shotQR').checked ? 'privacyQR' : 'privacy');
+  el('camNote').textContent = camErr ? t(camErr) : t((el('shotsOn').checked || el('handOn').checked) && el('shotQR').checked ? 'privacyQR' : 'privacy');
 }
 
+// "Camera aan" and "Voorbeeldbeeld" work as a pair: the active one is coloured in
 function updateCamUI(){
-  el('camBtn').textContent = t(useVideo ? 'camIsOn' : 'camOn');
-  el('camBtn').disabled = useVideo;
+  const camB = el('camBtn'), demoB = el('demoBtn');
+  camB.textContent = t(useVideo ? 'camIsOn' : 'camOn');
+  camB.disabled = useVideo;
+  camB.classList.toggle('primary', useVideo);
+  camB.setAttribute('aria-pressed', String(useVideo));
+  demoB.classList.toggle('primary', !useVideo);
+  demoB.setAttribute('aria-pressed', String(!useVideo));
   updateCamNote();
 }
 
@@ -193,6 +199,14 @@ function toggleFullscreen(){
   else document.documentElement.requestFullscreen().catch(() => {});
 }
 el('fsBtn').addEventListener('click', toggleFullscreen);
+// the button is coloured in while the page is full screen (also when switched with F or Esc)
+function updateFsBtn(){
+  const on = !!document.fullscreenElement;
+  el('fsBtn').classList.toggle('primary', on);
+  el('fsBtn').setAttribute('aria-pressed', String(on));
+}
+document.addEventListener('fullscreenchange', updateFsBtn);
+updateFsBtn();
 document.addEventListener('keydown', e => {   // F: full screen (Esc leaves it)
   if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat &&
       !(e.target && (e.target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)))) toggleFullscreen();
