@@ -130,8 +130,10 @@ function runProbe(){
     if (sky && onScreen(middleOf(sky))) found.n1 = middleOf(sky);
 
     // 4. a little bending (about 11 degrees, on the camera picture), in the lower half on the
-    //    side of the starry-ring point; and the shadow, straight below the centre
-    const C = readProbe([-35*DEG, 215*DEG, 270*DEG, 270*DEG], [0, 0, 0, 0], [R, R, R, R]);
+    //    side of the starry-ring point; and two lines into the shadow, below the centre and
+    //    turned away from the "once round" point
+    const shadowAng = n2side === 1 ? [300*DEG, 270*DEG] : [240*DEG, 270*DEG];
+    const C = readProbe([-35*DEG, 215*DEG, shadowAng[0], shadowAng[1]], [0, 0, 0, 0], [R, R, R, R]);
     if (C) {
       let best = null;
       for (const s of C[n2side === 1 ? 0 : 1]) {
@@ -139,18 +141,30 @@ function runProbe(){
         if (!best || Math.abs(s.defl - 0.2) < Math.abs(best.defl - 0.2)) best = s;
       }
       if (best && Math.abs(best.defl - 0.2) < 0.2) found.weak = best;
-      const e = edgeOf(C[2]), sh = e > 8 ? C[2][Math.floor(e*0.3)] : null;   // 30% of the way to the edge
-      if (sh && sh.kind === 0 && onScreen(sh)) found.shadow = sh;
+      // the shadow: close to the centre (from 30% of the way to its edge outwards), at the
+      // first spot whose ring stays clear of the other points; if there is none, the spot
+      // with the most room, unless the rings would overlap badly (a very small black hole)
+      const others = ['n1', 'n2', 'weak'].filter(k => found[k]).map(k => screen(found[k]));
+      const room = s => { const p = screen(s); return Math.min(Infinity, ...others.map(o => Math.hypot(p.left - o.left, p.top - o.top))); };
+      let sh = null, shRoom = -1;
+      search: for (const row of [2, 3]) {
+        const e = edgeOf(C[row]);
+        if (e <= 8) continue;
+        for (const frac of [0.3, 0.4, 0.5, 0.6]) {
+          const s = C[row][Math.floor(e*frac)];
+          if (s.kind !== 0 || !onScreen(s)) continue;
+          const r = room(s);
+          if (r > shRoom) { sh = s; shRoom = r; }
+          if (r >= 40) break search;
+        }
+      }
+      if (sh && shRoom >= 24) found.shadow = sh;
     }
   } catch (e) {
     console.warn('physics points:', e);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     probeFailed = true; updatePointsUI(); return;
   }
-
-  // a small black hole: leave out the shadow point when its ring would overlap another one
-  const apart = (s1, s2) => { const p1 = screen(s1), p2 = screen(s2); return Math.hypot(p1.left - p2.left, p1.top - p2.top) > 38; };
-  if (found.shadow && ['n1', 'n2', 'weak'].some(k => found[k] && !apart(found.shadow, found[k]))) found.shadow = null;
 
   for (const k of PROBE_ROWS) {
     const b = document.querySelector('.pt[data-k="' + k + '"]'), s = found[k];
@@ -193,11 +207,11 @@ pointsOn.addEventListener('change', () => { probeDirty = true; updateDock(); upd
 // the camera (arrow); for the shadow the dashed line is a ray traced back from the camera.
 const POINT_RAYS = {
   // from you, past the black hole at a distance, into the camera: bent a little
-  weak:   'M 266 54 C 214 46, 150 42, 50 72',
+  weak:   'M 264 70 C 220 40, 140 38, 50 72',
   // from the stars behind the camera, around the far side of the black hole, back to the camera
   n1:     'M 16 30 L 160 30 C 226 30, 232 120, 168 120 C 118 120, 78 96, 50 80',
   // from you, once all the way around the black hole, then to the camera
-  n2:     'M 266 62 L 170 50 A 25 25 0 1 0 170 100 A 25 25 0 1 0 170 50 C 128 50, 84 62, 50 74',
+  n2:     'M 264 74 L 170 50 A 25 25 0 1 0 170 100 A 25 25 0 1 0 170 50 C 128 50, 84 62, 50 74',
   // traced back from the camera: it spirals into the black hole
   shadow: 'M 50 76 C 100 76, 132 70, 150 64 C 162 60, 176 62, 180 72 C 184 82, 168 86, 166 76'
 };
@@ -209,11 +223,10 @@ function pointArt(k){
     '<defs><marker id="ptArrow-' + k + '" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">' +
       '<path d="M0 0 L10 5 L0 10 z" fill="#ff6c9c"/></marker></defs>' +
     '<g fill="#fff" opacity=".5">' + dots + '</g>' + behind +
-    // black hole: shadow with a faint glowing ring
-    '<circle cx="170" cy="75" r="23" fill="none" stroke="#ff9a3c" stroke-opacity=".3" stroke-width="6"/>' +
-    '<circle cx="170" cy="75" r="16" fill="#000" stroke="#ff9a3c" stroke-width="2"/>' +
+    // black hole: a black disk, with a thin light outline so it shows on the dark card
+    '<circle cx="170" cy="75" r="16" fill="#000" stroke="#c3b6e0" stroke-opacity=".7" stroke-width="1.2"/>' +
     // you (the camera picture, behind the black hole)
-    '<g fill="#c3b6e0"><circle cx="276" cy="58" r="8"/><path d="M261 100 C 261 76, 291 76, 291 100 z"/></g>' +
+    '<g fill="#c3b6e0"><circle cx="276" cy="71" r="8"/><path d="M261 100 C 261 76, 291 76, 291 100 z"/></g>' +
     // the camera
     '<g fill="#f3ecff"><rect x="16" y="66" width="22" height="18" rx="3"/><path d="M38 70 L48 64 L48 86 L38 80 z"/></g>' +
     '<path class="ray' + (k === 'shadow' ? ' traced' : '') + '" d="' + POINT_RAYS[k] + '" marker-end="url(#ptArrow-' + k + ')"/>' +
