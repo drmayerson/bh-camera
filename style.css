@@ -5,8 +5,9 @@
    with the same weight, e.g. ".langs button" after ".vlangs button"), so new rules are
    best added next to the ones they belong with, not moved around.
 
-   Layers (z-index), bottom to top: logo 2 · tap controls, visitor languages 3 ·
-   settings panel, QR button, (i) button 4 · gear, banner, message at the bottom 5 ·
+   Layers (z-index), bottom to top: logo 2 · tap controls, visitor languages, physics
+   points 3 · settings panel, QR button, (i) and points buttons, hand hint 4 ·
+   gear, banner, message at the bottom 5 ·
    countdown, QR code 6 · explanation 7 · PIN keypad 8
    ===================================================================================== */
 
@@ -883,3 +884,124 @@ input[type=range] {
   font-size: 1.1rem;
 }
 .msg.show { display: flex; }
+
+
+/* ---------- Physics explanation points (js/11-physics-points.js) ---------- */
+
+/* the points: rings around the pixel they explain (the pixel itself stays visible) */
+.points {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.points[hidden] { display: none; }
+
+.pt {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  min-height: 0;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.45), inset 0 0 0 2px rgba(0,0,0,.35);
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.pt[hidden] { display: none; }
+.pt:hover { border-color: var(--accent); }
+
+/* a slowly pulsing halo, so visitors notice them */
+.pt::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.75);
+  animation: ptPulse 2.4s ease-out infinite;
+}
+@keyframes ptPulse {
+  from { transform: scale(.7); opacity: .9; }
+  to { transform: scale(1.5); opacity: 0; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .pt::after { animation: none; }
+}
+
+/* the explanation card (uses .info / .info-card for the frame) and its drawing */
+.point-card { max-width: min(480px,100%); }
+
+.point-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 6px 0 2px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.3);
+}
+.point-art svg[hidden] { display: none; }
+
+.ray {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  marker-end: url(#ptArrow);
+}
+.ray.traced { stroke-dasharray: 7 5; }        /* traced back from the camera: no light comes this way */
+
+/* visitor button to hide / show the points: next to (i), or in its place when (i) is hidden */
+.points-btn {
+  position: fixed;
+  left: calc(max(12px,env(safe-area-inset-left,0px)) + 112px);
+  bottom: max(12px,env(safe-area-inset-bottom,0px));
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10,8,20,.5);
+  opacity: .75;
+}
+.points-btn svg {
+  width: 24px;
+  height: 24px;
+}
+.points-btn[aria-pressed=false] { opacity: .45; }
+.points-btn[hidden] { display: none; }
+.info-btn[hidden] + .points-btn { left: calc(max(12px,env(safe-area-inset-left,0px)) + 56px); }
+
+
+/* ---------- Raise a hand for a photo (js/10-hand-photo.js) ---------- */
+
+/* hint at the bottom of the screen; lights up while an open hand is seen */
+.hand-hint {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px,env(safe-area-inset-bottom,0px));
+  transform: translateX(-50%);
+  z-index: 4;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(10,8,20,.55);
+  border: 1px solid var(--line);
+  font-family: var(--display);
+  font-size: clamp(.85rem,1.6vw,1.05rem);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: transform .2s, border-color .2s, background .2s;
+}
+.hand-hint[hidden] { display: none; }
+.hand-hint.seen {
+  border-color: var(--accent);
+  background: rgba(255,108,156,.3);
+  transform: translateX(-50%) scale(1.08);
+}

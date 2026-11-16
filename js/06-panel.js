@@ -33,6 +33,7 @@ function updateDock(){
   el('dockReset').hidden = !(sp || ma);
   el('vLangs').hidden = !(keepLang.checked && hid);
   el('infoBtn').hidden = !(keepInfo.checked && hid);
+  el('pointsBtn').hidden = !(keepPoints.checked && el('pointsOn').checked && hid);   // (the points: 11)
   updateBdVal();
 }
 

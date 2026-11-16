@@ -8,7 +8,7 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
      window size;
    - geometry: how big the screen and the camera picture are in "lensing units";
    - setUniforms() / bindTextures(): hand all settings and textures to a shader program
-     (used by the render loop in 10-main.js).
+     (used by the render loop in 12-main.js).
    ===================================================================================== */
 
 

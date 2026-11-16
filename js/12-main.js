@@ -2,7 +2,7 @@
 if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the message on screen)');
 
 /* =====================================================================================
-   Black hole camera — 10: render loop and start-up
+   Black hole camera — 12: render loop and start-up
    -------------------------------------------------------------------------------------
    - the render loop: every screen refresh, take the newest camera frame, run the
      background removal, and draw (computing the lens map again only after a change);
@@ -64,6 +64,7 @@ function frame(now){
       setUniforms(progMap); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       dirty = false; settleUntil = performance.now() + 400;   // recomputing is not "slow drawing"
+      probeDirty = true;                  // the physics points must be measured again (11)
     }
     setUniforms(progDisp); bindTextures(); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   } else {
@@ -71,6 +72,9 @@ function frame(now){
   }
 
   if (shotPending) grabShot();            // a photo: read the picture while it is still there
+  // physics points (11): measure after a change; not in the first second, so the first
+  // picture is not held up by compiling the measuring shader
+  if (probeDirty && pointsOn.checked && !probeFailed && now > 1000) runProbe();
   requestAnimationFrame(frame);
 }
 
@@ -179,11 +183,13 @@ function setLang(l){
   updateNote();                           // background-removal note (07)
   updateShotUI();                         // photo notes (09)
   qrSecLabel();                           // QR time (09)
-  updateRememberNote();                   // (10)
+  updateRememberNote();                   // (12)
   updateCamUI();                          // camera button and note (05)
   updatePinUI();                          // PIN note (06)
   updateQualityNote();                    // picture size (04)
-  updateCamRotHint();                     // (10)
+  updateHandNote();                       // raise-a-hand note (10)
+  if (pointShown) showPoint(pointShown);  // an open physics explanation (11)
+  updateCamRotHint();                     // (12)
   setPanelHidden(panel.classList.contains('hidden'));   // gear label (06)
   if (bdNoteFn) bdNote(bdNoteFn);         // background-picture note (08)
   listCams();                             // camera names "Camera 1", ... (05)

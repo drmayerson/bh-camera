@@ -14,7 +14,7 @@ const el = id => document.getElementById(id);
 // controls used in many places
 const spin = el('spin'), incl = el('incl'), mass = el('mass');
 const keepSpin = el('keepSpin'), keepMass = el('keepMass'), showLogo = el('showLogo');
-const keepBd = el('keepBd'), keepLang = el('keepLang'), keepInfo = el('keepInfo');
+const keepBd = el('keepBd'), keepLang = el('keepLang'), keepInfo = el('keepInfo'), keepPoints = el('keepPoints');
 const bgMode = el('bgMode'), keyTol = el('keyTol'), plateSens = el('plateSens');
 const shadows = el('shadows'), lockCam = el('lockCam'), showMask = el('showMask');
 let keyRGB = [0, 177, 64];               // typical chroma-key green until one is picked
@@ -56,6 +56,9 @@ try {
     if (['auto', 'normal', 'high'].includes(s.quality)) quality = s.quality;
     if (s.shotCount != null) el('shotCount').checked = !!s.shotCount;
     if (s.qrAgainOn != null) el('qrAgainOn').checked = !!s.qrAgainOn;
+    if (s.handOn != null) el('handOn').checked = !!s.handOn;
+    if (s.pointsOn != null) el('pointsOn').checked = !!s.pointsOn;
+    if (s.keepPoints != null) keepPoints.checked = !!s.keepPoints;
     if (Array.isArray(s.key) && s.key.length === 3) keyRGB = s.key.map(Number);
   }
 } catch (e) {}
@@ -76,7 +79,8 @@ function save(){
       shadows: shadows.checked, lockCam: lockCam.checked, key: keyRGB,
       backdrop: el('bdChoice').value, shotsOn: el('shotsOn').checked,
       shotLocal: el('shotLocal').checked, shotQR: el('shotQR').checked, qrBase: el('qrBase').value.trim(), qrKey: el('qrKey').value,
-      qrSec: el('qrSec').value, camRot, quality, shotCount: el('shotCount').checked, qrAgainOn: el('qrAgainOn').checked
+      qrSec: el('qrSec').value, camRot, quality, shotCount: el('shotCount').checked, qrAgainOn: el('qrAgainOn').checked,
+      handOn: el('handOn').checked, pointsOn: el('pointsOn').checked, keepPoints: keepPoints.checked
     }));
   } catch (e) {}
 }
@@ -109,7 +113,7 @@ function changed(){ labels(); dirty = true; save(); }
 [keyTol, plateSens].forEach(i => i.addEventListener('input', () => { labels(); save(); }));
 shadows.addEventListener('change', save);
 lockCam.addEventListener('change', () => { lockCamera(lockCam.checked && usesPlate() && plateValid); save(); });
-[keepSpin, keepMass, keepBd, keepLang, keepInfo].forEach(c => c.addEventListener('change', () => { updateDock(); save(); }));
+[keepSpin, keepMass, keepBd, keepLang, keepInfo, keepPoints].forEach(c => c.addEventListener('change', () => { updateDock(); save(); }));
 
 // the Einstein Telescope logo (top left) can be switched off
 function updateLogo(){

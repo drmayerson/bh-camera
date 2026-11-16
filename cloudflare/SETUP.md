@@ -6,7 +6,9 @@ photo and a download button. Photos are deleted automatically after **24 hours**
 
 The service is one file, [`worker.js`](worker.js), running as a Cloudflare Worker. The free
 Cloudflare plan is enough for a booth: up to about 1,000 photos per day and roughly 1 GB
-of photos online at any time. You only need a free Cloudflare account, no software.
+of photos online at any time (see "Limits" below). You only need a free Cloudflare account,
+no software. Several booths can share one service and key; each booth only re-shows its
+own QR codes.
 
 Setting it up takes about 15 minutes, once.
 
@@ -112,6 +114,18 @@ Check whether your organisation has its own rules for photographing visitors.
 
 The links are unguessable (128 random bits), the pages are marked "noindex", and nothing
 other than the photo and its file name is stored.
+
+## Limits
+
+The free KV plan allows about 1,000 uploads per day, for all booths using the service
+together; the count starts again at 00:00 UTC. Deleting older photos would not help (it is
+a count of uploads, not of stored photos). Stored photos may take up to 1 GB; uploads are
+copies of at most 2048 pixels wide (the photo saved on the booth computer keeps the full
+size), so 1,000 photos fit.
+
+When a limit is reached nothing breaks: the Worker answers "full", the booth says that the
+photo service is full for today, and saves the photo on its own computer instead. For
+busier events use R2 (below).
 
 ## Alternative: R2 storage instead of KV
 

@@ -22,7 +22,7 @@ What was checked (November 2026):
 | Screen going to sleep | the page asks the browser to keep the screen on while it is open (Chrome/Edge) |
 | Starting without internet | after one visit with internet, the page starts offline too (offline cache): page, texts, pictures, fonts, QR library, and the person recognition once it has been used; tested by switching the web server off and reloading |
 | Mouse pointer | disappears after 3 s without movement |
-| Photo keys | click, arrow keys, PageUp/PageDown (what most presenter remotes send) |
+| Photo keys | click, arrow keys, PageUp/PageDown (what most presenter remotes send), or a raised open hand (option) |
 | Languages | NL (default), EN, FR, DE; visitor download page follows the phone's language |
 
 ## Setting up the laptop (once, before the expo)
@@ -78,6 +78,8 @@ folder permissions are already granted.
 |---|---|
 | Take a photo | click in the picture, arrow key, PageUp/PageDown (presenter remote) |
 | Countdown 3-2-1 | tick *Aftellen voor de foto* in Settings |
+| Photo without touching | tick *Hand opsteken voor een foto*: an open hand held up to the camera for about half a second starts the countdown (a hint at the bottom of the screen tells visitors) |
+| Physics explanation | the pulsing rings on the picture (option *Uitlegpunten in het beeld*, on by default): tap one for what the light did there |
 | Show recent QR codes again | key **Q** or the small **QR** button bottom right (press again for older ones) |
 | Hide QR code / cancel countdown | **Esc** |
 | Spin, size, background picture without opening Settings | arrows at the right edge (tick the options in Settings) |
@@ -94,7 +96,7 @@ folder permissions are already granted.
 | Moving things in the background (screens, people walking behind) | they appear as "people" | aim the camera at a calm background |
 | Webcam unplugged / USB hiccup | picture freezes, message, automatic reconnect | tape the cable; use a USB port directly on the laptop |
 | Laptop on battery | lower performance, fans | keep it plugged in |
-| More than ~1,000 QR photos per day | Cloudflare's free KV limit is reached; uploads fail, photos saved locally | switch the service to R2 (see SETUP.md) for very busy events |
+| More than ~1,000 QR photos per day (all booths sharing the service together) | Cloudflare's free KV limit is reached until 00:00 UTC; the booth says the photo service is full and saves the photo locally | switch the service to R2 (see SETUP.md) for very busy events |
 | A visitor grabs the mouse | could open Settings | the gear is small and dim; keep mouse/remote with staff |
 
 ## Unattended touchscreen (no staff at the booth)
@@ -105,7 +107,8 @@ booth key, photo folder, PIN) needs a keyboard or the on-screen keyboard, once.
 Everything a visitor can do is a tap: take a photo (tap the picture; with countdown if
 ticked), close the QR code (×), re-show a QR code (only if allowed, see below), the arrows at
 the right edge (spin, size, background picture; hold to repeat), the language buttons top
-right, and the (i) explanation. None of it needs hover, a right click or a key.
+right, the (i) explanation and the physics explanation points. None of it needs hover, a
+right click or a key. With *Hand opsteken voor een foto*, a photo needs no touching at all.
 
 Checked here:
 
@@ -127,7 +130,8 @@ events, which touch screens send too).
 Set up for unattended use:
 
 1. Settings → *Zichtbaar als de instellingen verborgen zijn*: tick what visitors may use
-   (spin, size, background picture, languages, explanation).
+   (spin, size, background picture, languages, explanation, explanation points; the button
+   to hide the points is optional: hidden points come back by themselves after 2 minutes).
 2. Settings → *Beveiligen*: tick the PIN option and choose a PIN of 4–8 digits.
 3. If photos are on: untick *Knop "QR" voor eerdere QR-codes tonen*; prefer the QR code over
    saving on the laptop (a "Save as" or permission prompt could pop up for a visitor).
@@ -139,15 +143,20 @@ Set up for unattended use:
 
 ## Before going live: update the photo service once
 
-The visitor download page now speaks NL/EN/FR/DE (it uses the phone's language). This is
-in [cloudflare/worker.js](cloudflare/worker.js): paste the new version into the Cloudflare
-Worker editor once and deploy (step 3 of SETUP.md). Until then the visitor page stays Dutch;
-everything else keeps working.
+[cloudflare/worker.js](cloudflare/worker.js) was updated (November 2026): it now tells the
+booth plainly when the free daily limit is reached ("photo service full"), and its messages
+are in English. Paste the new version into the Cloudflare Worker editor once and deploy
+(step 3 of SETUP.md). Until then everything keeps working; a full service then shows as a
+general upload error.
 
 ## Known limitations
 
 - Posters, statues or mannequins that look like people may stay visible in booth mode.
 - Booth mode needs a fixed camera; if it is bumped, press *Opnieuw leren* (relearn).
+- *Hand opsteken voor een foto* recognises hands up to about 2–3 m from the camera, and was
+  tested here without a real hand (the recognition runs; whether it fires reliably at your
+  booth must be tried with the real camera). It runs on the processor alongside booth mode;
+  check `bhcStats()` for the frame rate with both on.
 - The visitor page and photos depend on the Cloudflare service and on the visitor's phone
   having internet.
 - Not tested here: real webcams, the venue lighting, an external display/TV, and a

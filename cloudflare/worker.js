@@ -10,6 +10,7 @@
 //
 // Routes:
 //   POST /upload    body = JPEG, headers X-Booth-Key, X-Photo-Name  -> {id, page, expires}
+//                   (storage full: status 507, {error, code: 'full'})
 //   GET  /check     header X-Booth-Key                              -> {ok: true, keepHours}
 //   GET  /p/<id>    small download page for visitors (what the QR code opens)
 //   GET  /f/<id>    the photo itself (?download=1 to save it as a file)
@@ -38,7 +39,20 @@ export default {
       if (body.byteLength < 100 || b[0] !== 0xFF || b[1] !== 0xD8 || b[2] !== 0xFF) return json({error: 'not a JPEG'}, 415, cors);
       const now = Date.now(), id = now.toString(36) + '.' + randomPart();
       const name = (req.headers.get('X-Photo-Name') || 'black-hole.jpg').replace(/[^\w.-]/g, '').slice(0, 80) || 'black-hole.jpg';
-      await st.put(id, body, name);
+      try {
+        await st.put(id, body, name);
+      } catch (err) {
+        // Storage refused the photo. On the free plan this happens when the daily upload
+        // limit (about 1,000 for KV, shared by all booths using this service; it resets at
+        // 00:00 UTC) or the storage limit (1 GB) is reached. Deleting older photos would not
+        // help the daily limit, so the booth is told plainly ('full') and saves the photo on
+        // its own computer instead.
+        const msg = String(err && err.message || err);
+        console.error('storing a photo failed:', msg);
+        const full = /limit|quota|exceed|storage|space/i.test(msg);
+        return json({error: full ? 'photo service full (free daily limit reached)' : 'could not store the photo', code: full ? 'full' : 'store'},
+                    full ? 507 : 500, cors);
+      }
       return json({id, page: url.origin + '/p/' + id, expires: now + KEEP_MS}, 200, cors);
     }
 

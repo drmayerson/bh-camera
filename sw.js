@@ -12,7 +12,8 @@ const SCOPE = new URL('./', self.location).pathname;          // /bh-camera/
 const CORE = [
   './', 'texts.js', 'style.css',
   'js/01-lensing-shader.js', 'js/02-setup.js', 'js/03-settings.js', 'js/04-drawing.js', 'js/05-camera.js',
-  'js/06-panel.js', 'js/07-background-removal.js', 'js/08-background-pictures.js', 'js/09-photos.js', 'js/10-main.js',
+  'js/06-panel.js', 'js/07-background-removal.js', 'js/08-background-pictures.js', 'js/09-photos.js',
+  'js/10-hand-photo.js', 'js/11-physics-points.js', 'js/12-main.js',
   'backgrounds/earth.jpg', 'backgrounds/earthrise.jpg', 'backgrounds/moon.jpg',
   'backgrounds/pillars.jpg', 'backgrounds/deep-field.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'

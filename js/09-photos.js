@@ -93,7 +93,8 @@ function countdown(){
   });
 }
 
-async function takeShot(){
+// byHand: started by a raised hand (10-hand-photo.js): always with countdown
+async function takeShot(byHand){
   if (shotBusy || shotPending || counting) return;
   if (!shotLocal.checked && !shotQR.checked) { toast(t('chooseSave')); return; }
   hideQR();
@@ -105,7 +106,7 @@ async function takeShot(){
       if (p !== 'granted') toast(t('noFolderPerm', {name: shotDir.name}));
     } catch (e) { console.warn(e); }
   }
-  if (el('shotCount').checked) {
+  if (el('shotCount').checked || byHand) {
     counting = true;
     const ok = await countdown();
     counting = false;
@@ -131,8 +132,22 @@ function grabShot(){
   t.width = Math.max(1, Math.round(W*k)); t.height = Math.max(1, Math.round(H*k));
   t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
   const thumb = t.toDataURL('image/jpeg', 0.8);
-  c.toBlob(b => handleShot(b, thumb).catch(e => console.error(e)).finally(() => { shotBusy = false; }), 'image/jpeg', 0.92);
+  // for the QR download a copy of at most UPLOAD_MAX pixels wide is plenty for a phone,
+  // and keeps the photo service well within its free storage (about 1 GB); the photo
+  // saved on this computer keeps the full size
+  const ku = Math.min(1, UPLOAD_MAX/Math.max(W, H));
+  let up = c;
+  if (ku < 1) {
+    up = document.createElement('canvas');
+    up.width = Math.round(W*ku); up.height = Math.round(H*ku);
+    up.getContext('2d').drawImage(c, 0, 0, up.width, up.height);
+  }
+  c.toBlob(b => {
+    const go = ub => handleShot(b, thumb, ub).catch(e => console.error(e)).finally(() => { shotBusy = false; });
+    if (up === c) go(b); else up.toBlob(go, 'image/jpeg', 0.9);
+  }, 'image/jpeg', 0.92);
 }
+const UPLOAD_MAX = 2048;                  // longest side of the uploaded copy (pixels)
 
 // date and time for the file name, e.g. black-hole_2026-11-16_14-05-09.jpg
 let lastStamp = '', stampCount = 0;
@@ -151,7 +166,8 @@ function stamp(){
 
 // Save and/or upload one photo. If the upload fails, the photo is saved on this computer
 // instead (when that was not already chosen).
-async function handleShot(blob, thumb){
+// (upBlob: the copy to upload, possibly smaller)
+async function handleShot(blob, thumb, upBlob){
   if (!blob) { toast(t('shotFail')); return; }
   const name = 'black-hole_' + stamp() + '.jpg';
   const wantLocal = shotLocal.checked, wantQR = shotQR.checked;
@@ -160,7 +176,7 @@ async function handleShot(blob, thumb){
     showQRWaiting(thumb);
     try {
       if (!qrConfigured()) throw new Error(t('serviceNotSet'));
-      const r = await uploadShot(blob, name);
+      const r = await uploadShot(upBlob || blob, name);
       qrHistory.unshift({page: r.page, thumb, time: new Date(), expires: r.expires || Date.now() + 24*3600e3});
       if (qrHistory.length > 20) qrHistory.length = 20;
       await showQR(0);
@@ -209,7 +225,8 @@ async function callService(path, opts){
   try {
     const r = await fetch(serviceUrl(path), Object.assign({signal: ctl.signal}, opts));
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || (t('error') + ' ' + r.status));
+    // code 'full': the free limits of the photo service are reached (see cloudflare/worker.js)
+    if (!r.ok) throw new Error(j.code === 'full' ? t('serviceFull') : j.error || (t('error') + ' ' + r.status));
     return j;
   } finally { clearTimeout(timer); }
 }

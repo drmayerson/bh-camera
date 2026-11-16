@@ -8,7 +8,9 @@
      (none)        direct: computes the bending for every pixel, every frame (fallback);
      MAP_PASS      computes the bending once per setting into a float texture (lens map);
      DISPLAY_PASS  per frame: looks up the lens map and fetches camera / sky / picture;
-     RAW_PASS      the plain camera picture without black hole (colour picking, mask view).
+     RAW_PASS      the plain camera picture without black hole (colour picking, mask view);
+     PROBE_PASS    the bending along four lines from the black hole, read back by
+                   11-physics-points.js to place the clickable explanation points.
    Physics: Schwarzschild (spin 0) follows the original exhibit's code; the spinning (Kerr)
    case uses the analytic solution of Gralla & Lupsasca — see the comments further down.
    The text below is GLSL, kept in a JavaScript string that is handed to WebGL as it is.
@@ -23,7 +25,8 @@
      camTC ... camComposite    camera picture, background removal, background picture, sky
      OUT_BLACK / CAM / SKY     what each pass writes: the lens map stores coordinates
                                (layout: see 02-setup.js), the other passes write colours
-     main()                    one per pass: DISPLAY_PASS, RAW_PASS, else MAP_PASS / direct
+     main()                    one per pass: DISPLAY_PASS, RAW_PASS, else MAP_PASS / direct /
+                               PROBE_PASS (the same code, only the input point and output differ)
    ===================================================================================== */
 
 const FRAG_SRC = `
@@ -52,6 +55,10 @@ uniform float uShowMask;     // raw pass: tint the removed background
 uniform float uCamRot;       // camera mounted on its side: 0 no, 1 turn picture clockwise, 3 anticlockwise
 uniform sampler2D uBackdrop; // chosen background photo
 uniform float uUseBackdrop;  // 1: removed background shows the photo instead of the sky
+uniform vec4  uProbeAng;     // PROBE_PASS: direction (radians) of each of the 4 probe lines
+uniform vec4  uProbeFrom;    // PROBE_PASS: where each probe line starts and ends
+uniform vec4  uProbeTo;      //   (distance from the centre, lensing units)
+uniform float uProbeN;       // PROBE_PASS: samples per line
 uniform vec2  uBdScale;      // cover fit of the photo onto the camera image
 
 vec2 c_p(vec2 x, vec2 y){
@@ -508,7 +515,12 @@ vec4 camComposite(vec2 tc, vec3 n){
 }
 #endif
 
-#ifdef MAP_PASS
+#if defined(PROBE_PASS)
+// probe: (deflection, what is shown: 0 shadow / 1 camera picture / 2 sky, n.z, 1)
+#define OUT_BLACK()    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0)
+#define OUT_CAM(tc, n) gl_FragColor = vec4(defl, 1.0, n.z, 1.0)
+#define OUT_SKY(n)     gl_FragColor = vec4(defl, 2.0, n.z, 1.0)
+#elif defined(MAP_PASS)
 #define OUT_BLACK()    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0)
 #define OUT_CAM(tc, n) gl_FragColor = vec4(tc, 1.0, n.z)
 #define OUT_SKY(n)     gl_FragColor = vec4(n.x, n.y, 2.0, n.z)
@@ -542,8 +554,19 @@ void main(){
 }
 #else
 void main(){
+#ifdef PROBE_PASS
+    // one probe line per row (4 rows), one sample per column, from the centre outwards
+    float row = floor(gl_FragCoord.y);
+    vec4 pick = row < 0.5 ? vec4(1.0, 0.0, 0.0, 0.0) : row < 1.5 ? vec4(0.0, 1.0, 0.0, 0.0)
+              : row < 2.5 ? vec4(0.0, 0.0, 1.0, 0.0) : vec4(0.0, 0.0, 0.0, 1.0);
+    float ang = dot(pick, uProbeAng);
+    float rr  = mix(dot(pick, uProbeFrom), dot(pick, uProbeTo), (floor(gl_FragCoord.x) + 0.5)/uProbeN);
+    float x = rr*cos(ang);
+    float y = rr*sin(ang);
+#else
     float x = uScreen.x*(gl_FragCoord.x/uResolution.x - 0.5);
     float y = uScreen.y*(gl_FragCoord.y/uResolution.y - 0.5);
+#endif
     float mag = length(vec2(x, y));
     bool useKerr = uSpin >= 1.0e-4;
     if (!useKerr && mag*mag <= 27.0*M*M) { OUT_BLACK(); return; }

@@ -20,14 +20,17 @@
      declared; functions may refer to anything, since they only run after start-up.
 
    Where to find what (numbers are the files in js/)
-     taking a photo:   click in the picture (07, last section) or arrow keys (09)
-                       -> takeShot() (09) -> frame() calls grabShot() (10) -> handleShot() (09)
-     the lens map:     a change sets `dirty` (03) -> frame() redraws MAP_PASS into the map (10);
+     taking a photo:   click in the picture (07, last section), arrow keys (09) or a raised
+                       hand (10) -> takeShot() (09) -> frame() calls grabShot() (12)
+                       -> handleShot() (09)
+     physics points:   PROBE_PASS in the shader (01) measures the bending -> runProbe() (11),
+                       called from frame() (12) after the lens map changed
+     the lens map:     a change sets `dirty` (03) -> frame() redraws MAP_PASS into the map (12);
                        allocMap() (02); the physics itself in the shader (01)
      remembered:       restored at start and written by save() (03); language (02); camera
                        on / which camera (05); settings hidden (06); the PIN in its own key (06);
                        own background picture and photo folder in IndexedDB (08)
-     texts:            texts.js; applyStaticText() (02); setLang() (10) redraws the texts
+     texts:            texts.js; applyStaticText() (02); setLang() (12) redraws the texts
                        that the code itself makes
 
    Glossary
@@ -279,7 +282,7 @@ upload(skyTex, makeSky());
 let demo = makeDemo();
 upload(camTex, demo);
 let camAspect = demo.height/demo.width;       // height/width of the (upright) camera picture
-// (the demo is drawn again once the web fonts have arrived: see the start-up in 10-main.js)
+// (the demo is drawn again once the web fonts have arrived: see the start-up in 12-main.js)
 
 
 // ---------- lens map (precomputed once per setting) ----------
@@ -287,7 +290,7 @@ let camAspect = demo.height/demo.width;       // height/width of the (upright) c
 //   z = 0  shadow (black)
 //   z = 1  camera picture: xy = camera coordinate, w = n.z
 //   z = 2  sky:            xy = n.x, n.y,          w = n.z     (n = direction the ray came from)
-// Recomputed in frame() (10-main.js) while `dirty` (03-settings.js).
+// Recomputed in frame() (12-main.js) while `dirty` (03-settings.js).
 
 // mapType: {type, internal} of the float texture format, or null (then draw directly)
 let mapTex = null, mapFbo = null, mapType = null, mapW = 0, mapH = 0;
