@@ -96,8 +96,7 @@ function countdown(){
   });
 }
 
-// byHand: started by a raised hand (10-hand-photo.js): always with countdown
-async function takeShot(byHand){
+async function takeShot(){
   if (shotBusy || shotPending || counting) return;
   if (!shotLocal.checked && !shotQR.checked) { toast(t('chooseSave')); return; }
   hideQR();
@@ -109,7 +108,7 @@ async function takeShot(byHand){
       if (p !== 'granted') toast(t('noFolderPerm', {name: shotDir.name}));
     } catch (e) { console.warn(e); }
   }
-  if (el('shotCount').checked || byHand) {
+  if (el('shotCount').checked) {
     counting = true;
     const ok = await countdown();
     counting = false;

@@ -9,7 +9,7 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
      n1      the broad starry ring: light bent so strongly that it came from beside or
              behind the camera (about half way round the black hole)
      n2      once all the way around: a very thin ring of the camera picture right at the
-             shadow; placed on the equator, on the side where that ring is widest
+             shadow; placed on the equator, on the left (see runProbe)
      shadow  the light falls into the black hole
    Where these are depends on mass, spin, viewing angle and screen. So after every change
    of the lens map, the shader measures the bending along lines from the centre
@@ -106,8 +106,10 @@ function runProbe(){
     if (!A) throw new Error('probe readback failed');
 
     // 2. once all the way round: this ring is far thinner than one coarse sample, so measure
-    //    again finely just outside the shadow, on both sides of the equator, and take the
-    //    side where it is widest (with a fast spin the two sides differ a lot)
+    //    again finely just outside the shadow, on both sides of the equator. The point goes
+    //    on the left (where this ring is widest for a spinning black hole), always the same
+    //    side so the points do not jump to the other side when a setting changes; on the
+    //    right only when there is no ring on the left
     const near = [0, 1].map(j => {
       const e = edgeOf(A[j]);
       return e > 0 ? [A[j][e - 1].r, A[j][Math.min(PROBE_N - 1, e + 6)].r] : [0, 0];
@@ -117,8 +119,7 @@ function runProbe(){
     if (B) {
       const ring = [0, 1].map(j => near[j][1] > 0 ?
         longest(runsOf(B[j], s => s.kind === 1 && Math.abs(s.defl - 2*Math.PI) < 1.2)) : null);
-      const width = j => (ring[j] ? ring[j].length*(near[j][1] - near[j][0]) : 0);
-      n2side = width(0) > width(1) ? 0 : 1;
+      n2side = ring[1] && onScreen(middleOf(ring[1])) ? 1 : ring[0] && onScreen(middleOf(ring[0])) ? 0 : 1;
       if (ring[n2side] && onScreen(middleOf(ring[n2side]))) found.n2 = middleOf(ring[n2side]);
     }
 
@@ -158,13 +159,22 @@ function runProbe(){
           if (r >= 40) break search;
         }
       }
-      if (sh && shRoom >= 24) found.shadow = sh;
+      if (sh && shRoom >= 19) found.shadow = sh;   // (19 px: two rings of the smallest size, 16 px)
     }
   } catch (e) {
     console.warn('physics points:', e);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     probeFailed = true; updatePointsUI(); return;
   }
+
+  // ring size: 34 px, smaller when points are close together (a small black hole), so that
+  // all four still fit; at least 16 px
+  const placed = PROBE_ROWS.filter(k => found[k]).map(k => screen(found[k]));
+  let gap = Infinity;
+  for (let i = 0; i < placed.length; i++)
+    for (let j = i + 1; j < placed.length; j++)
+      gap = Math.min(gap, Math.hypot(placed[i].left - placed[j].left, placed[i].top - placed[j].top));
+  el('points').style.setProperty('--pt', Math.round(Math.max(16, Math.min(34, gap*0.85))) + 'px');
 
   for (const k of PROBE_ROWS) {
     const b = document.querySelector('.pt[data-k="' + k + '"]'), s = found[k];

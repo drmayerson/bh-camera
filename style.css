@@ -899,8 +899,8 @@ input[type=range] {
 
 .pt {
   position: absolute;
-  width: 34px;
-  height: 34px;
+  width: var(--pt, 34px);                     /* smaller for a small black hole (set by runProbe) */
+  height: var(--pt, 34px);
   min-height: 0;
   padding: 0;
   transform: translate(-50%, -50%);
@@ -919,7 +919,7 @@ input[type=range] {
 .pt::after {
   content: "";
   position: absolute;
-  inset: -8px;
+  inset: calc(var(--pt, 34px)*-.24);
   border-radius: 50%;
   border: 2px solid rgba(255,255,255,.75);
   animation: ptPulse 2.4s ease-out infinite;

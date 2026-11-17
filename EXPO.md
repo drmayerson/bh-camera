@@ -78,7 +78,7 @@ folder permissions are already granted.
 |---|---|
 | Take a photo | click in the picture, arrow key, PageUp/PageDown (presenter remote) |
 | Countdown 3-2-1 | tick *Aftellen voor de foto* in Settings |
-| Photo without touching | tick *Hand opsteken* (under *Een foto nemen*): an open hand held up to the camera for about half a second starts the countdown (a hint at the bottom of the screen tells visitors) |
+| Photo without touching | tick *Hand opsteken* (under *Een foto nemen*): an open hand held up to the camera for a moment takes the photo (with the countdown if ticked; a hint at the bottom of the screen tells visitors). To test: with the settings open, the note under the option shows how many hands, and open hands, the camera sees right now |
 | Physics explanation | the pulsing rings on the picture (option *Uitlegpunten in het beeld*, on by default): tap one for what the light did there |
 | Show recent QR codes again | key **Q** or the small **QR** button bottom right (press again for older ones) |
 | Hide QR code / cancel countdown | **Esc** |
