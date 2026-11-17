@@ -130,25 +130,33 @@ function runProbe(){
     const sky = longest(runsOf(skyLine, s => s.kind === 2).filter(run => run[0].defl > 1.5));
     if (sky && onScreen(middleOf(sky))) found.n1 = middleOf(sky);
 
-    // 4. a little bending (about 11 degrees, on the camera picture), in the lower half on the
-    //    side of the starry-ring point; and two lines into the shadow, below the centre and
-    //    turned away from the "once round" point
-    const shadowAng = n2side === 1 ? [300*DEG, 270*DEG] : [240*DEG, 270*DEG];
-    const C = readProbe([-35*DEG, 215*DEG, shadowAng[0], shadowAng[1]], [0, 0, 0, 0], [R, R, R, R]);
-    if (C) {
-      let best = null;
-      for (const s of C[n2side === 1 ? 0 : 1]) {
-        if (s.kind !== 1 || !onScreen(s)) continue;
+    // 4. a little bending (about 11 degrees, on the camera picture): on the equator as well,
+    //    on the left (the middle of the left edge has no buttons; the tap controls are on the
+    //    right), far out on the line of the "once round" point. If that is off the screen (a
+    //    large black hole on a narrow screen), the furthest spot that is still on it, as long
+    //    as the bending there is small (below about 30 degrees).
+    for (const line of [A[1], A[0]]) {
+      let best = null, furthest = null;
+      for (const s of line) {
+        if (s.kind !== 1 || s.defl > 0.55 || !onScreen(s)) continue;
         if (!best || Math.abs(s.defl - 0.2) < Math.abs(best.defl - 0.2)) best = s;
+        if (!furthest || s.r > furthest.r) furthest = s;
       }
-      if (best && Math.abs(best.defl - 0.2) < 0.2) found.weak = best;
+      found.weak = best && Math.abs(best.defl - 0.2) < 0.05 ? best : furthest;
+      if (found.weak) break;
+    }
+
+    // 5. two lines into the shadow, below the centre and turned away from the "once round" point
+    const shadowAng = n2side === 1 ? [300*DEG, 270*DEG] : [240*DEG, 270*DEG];
+    const C = readProbe([shadowAng[0], shadowAng[1], 0, 0], [0, 0, 0, 0], [R, R, 1, 1]);
+    if (C) {
       // the shadow: close to the centre (from 30% of the way to its edge outwards), at the
       // first spot whose ring stays clear of the other points; if there is none, the spot
       // with the most room, unless the rings would overlap badly (a very small black hole)
       const others = ['n1', 'n2', 'weak'].filter(k => found[k]).map(k => screen(found[k]));
       const room = s => { const p = screen(s); return Math.min(Infinity, ...others.map(o => Math.hypot(p.left - o.left, p.top - o.top))); };
       let sh = null, shRoom = -1;
-      search: for (const row of [2, 3]) {
+      search: for (const row of [0, 1]) {
         const e = edgeOf(C[row]);
         if (e <= 8) continue;
         for (const frac of [0.3, 0.4, 0.5, 0.6]) {
