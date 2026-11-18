@@ -12,6 +12,12 @@
    ===================================================================================== */
 
 
+/* ---------- The hidden attribute always hides ---------- */
+
+/* (rules below that set display, e.g. label or .btns, would otherwise override it) */
+[hidden] { display: none !important; }
+
+
 /* ---------- Colours, fonts and logo size (used throughout) ---------- */
 
 :root {
@@ -25,6 +31,7 @@
   --mono: "JetBrains Mono",ui-monospace,Consolas,monospace;
   --logo-w: clamp(64px,8.5vw,124px);
   --logo-h: calc(var(--logo-w)*1.19);
+  --ui: 1;                                      /* size of the controls: larger on big screens (end of file) */
 }
 
 
@@ -320,8 +327,8 @@ body.idle, body.idle canvas { cursor: none; }
   align-items: center;
   justify-content: center;
   gap: 16px 22px;
-  max-width: 100%;
-  max-height: 100%;
+  max-width: calc(100% / var(--ui));
+  max-height: calc(100% / var(--ui));
   overflow: auto;
   padding: 22px 22px 26px;
   border-radius: 22px;
@@ -495,8 +502,9 @@ input[type=url], input[type=password] {
   left: max(12px,env(safe-area-inset-left,0px));
   bottom: calc(max(12px,env(safe-area-inset-bottom,0px)) + 52px);
   z-index: 4;
-  width: min(390px,calc(100vw - 24px));
-  max-height: calc(100vh - 96px - var(--logo-h));
+  width: min(390px,calc((100vw - 24px)/var(--ui)));
+  max-height: calc((100vh - 96px - var(--logo-h))/var(--ui));
+  max-height: calc((100dvh - 96px - var(--logo-h))/var(--ui));   /* (phones: the visible height) */
   overflow: auto;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -531,7 +539,10 @@ input[type=url], input[type=password] {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-body.nologo .panel { max-height: calc(100vh - 76px); }
+body.nologo .panel {
+  max-height: calc((100vh - 76px)/var(--ui));
+  max-height: calc((100dvh - 76px)/var(--ui));
+}
 .panel.hidden { display: none; }
 
 .langs {
@@ -596,8 +607,8 @@ body.nologo .panel { max-height: calc(100vh - 76px); }
 
 .info-card {
   position: relative;
-  max-width: min(620px,100%);
-  max-height: 100%;
+  max-width: min(620px,calc(100% / var(--ui)));
+  max-height: calc(100% / var(--ui));
   overflow: auto;
   padding: 22px 24px;
   border-radius: 20px;
@@ -650,7 +661,7 @@ body.nologo .panel { max-height: calc(100vh - 76px); }
 .pinpad[hidden] { display: none; }
 
 .pin-card {
-  width: min(236px,calc(100vw - 24px));
+  width: min(236px,calc((100vw - 24px)/var(--ui)));
   padding: 12px;
   border-radius: 18px;
   background: var(--panel);
@@ -1018,3 +1029,52 @@ input[type=range] {
   color: var(--soft);
 }
 .group-title:first-of-type { margin-top: 0; }
+
+
+/* ---------- Large screens (TVs): larger controls and texts ---------- */
+
+/* everything is sized for a laptop; seen from 2-3 m on a big screen that is small */
+@media (min-width: 1800px) and (min-height: 1000px) { :root { --ui: 1.2; } }
+@media (min-width: 2500px) and (min-height: 1400px) { :root { --ui: 1.6; } }
+@media (min-width: 3400px) and (min-height: 1900px) { :root { --ui: 2; } }
+
+/* controls anchored to an edge: zoom (sizes above are divided by --ui to stay on screen) */
+.gear, .info-btn, .points-btn, .vlangs, .panel, .qr-again, .info-card, .qr-card, .pin-card { zoom: var(--ui); }
+/* centred ones: scaled around their anchor */
+.dock {
+  transform: translateY(-50%) scale(var(--ui));
+  transform-origin: right center;
+}
+.toast, .hand-hint {
+  transform: translateX(-50%) scale(var(--ui));
+  transform-origin: bottom center;
+}
+.hand-hint.seen { transform: translateX(-50%) scale(calc(var(--ui)*1.08)); }
+.banner {
+  transform: translateX(-50%) scale(var(--ui));
+  transform-origin: top center;
+}
+.msg { font-size: calc(1.1rem*var(--ui)); }
+
+
+/* ---------- Phones in portrait: the tap controls at the bottom ---------- */
+
+/* (at the right edge they would sit on top of the black hole) */
+@media (max-width: 600px) and (orientation: portrait) {
+  .dock {
+    top: auto;
+    right: auto;
+    left: 50%;
+    bottom: calc(max(12px,env(safe-area-inset-bottom,0px)) + 56px);
+    transform: translateX(-50%);
+    transform-origin: bottom center;
+  }
+  .dock-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .dock-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+}

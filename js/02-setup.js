@@ -50,9 +50,11 @@ const msg = document.getElementById('msg');
 // ---------- languages (all texts are in texts.js) ----------
 
 const TXT = window.BHC_TEXT || {nl: {}};
-let lang = 'nl';
+// First visit: the browser's language when we have it (NL, EN, FR, DE), otherwise English.
+let lang = (navigator.languages || [navigator.language || ''])
+  .map(x => String(x).slice(0, 2).toLowerCase()).find(x => TXT[x]) || (TXT.en ? 'en' : 'nl');
 
-// the language remembered from last time (read here already, so the first texts are right)
+// the language remembered from last time wins (read here already, so the first texts are right)
 try {
   const s0 = JSON.parse(localStorage.getItem(KEY) || 'null');
   if (s0 && s0.remember !== false && TXT[s0.lang]) lang = s0.lang;
@@ -90,9 +92,12 @@ function applyStaticText(){
 applyStaticText();
 
 // full-screen message for problems the page cannot work around
+// (the settings and the gear are put away, so they do not cover the message)
 function fail(m){
   msg.textContent = m;
   msg.classList.add('show');
+  document.getElementById('panel').classList.add('hidden');
+  document.getElementById('gear').hidden = true;
 }
 
 

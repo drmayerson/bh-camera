@@ -8,8 +8,13 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
      weak    a bit of bending (light that passed the black hole at a distance)
      n1      the broad starry ring: light bent so strongly that it came from beside or
              behind the camera (about half way round the black hole)
-     n2      once all the way around: a very thin ring of the camera picture right at the
-             shadow; placed on the equator, on the left (see runProbe)
+     uturn   a hairpin turn: light bent by about 180 degrees, from straight behind the
+             camera. In this exhibit the camera picture also hangs behind the camera
+             (mirrored), so this is the thin ring of "you" hugging the shadow; on the right
+             of the equator
+     n2      once all the way around: a ring of the camera picture even closer to the
+             shadow, but usually far thinner than a pixel; on the left of the equator, and
+             only shown when it is at least 1 pixel wide
      shadow  the light falls into the black hole
    Where these are depends on mass, spin, viewing angle and screen. So after every change
    of the lens map, the shader measures the bending along lines from the centre
@@ -20,7 +25,7 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
    ===================================================================================== */
 
 const PROBE_N = 4096;                     // samples per probe line (4 lines per measurement)
-const PROBE_ROWS = ['n1', 'n2', 'weak', 'shadow'];
+const PROBE_ROWS = ['n1', 'uturn', 'n2', 'weak', 'shadow'];
 const DEG = Math.PI/180;
 const POINTS_BACK_MS = 120000;            // hidden by a visitor: back after 2 minutes
 
@@ -105,22 +110,32 @@ function runProbe(){
     const A = readProbe([0, 180*DEG, 35*DEG, 145*DEG], [0, 0, 0, 0], [R, R, R, R]);
     if (!A) throw new Error('probe readback failed');
 
-    // 2. once all the way round: this ring is far thinner than one coarse sample, so measure
-    //    again finely just outside the shadow, on both sides of the equator. The point goes
-    //    on the left (where this ring is widest for a spinning black hole), always the same
-    //    side so the points do not jump to the other side when a setting changes; on the
-    //    right only when there is no ring on the left
+    // 2. the two thin rings of the camera picture right at the shadow are far thinner than
+    //    one coarse sample, so measure again finely just outside the shadow, on both sides
+    //    of the equator:
+    //    - the hairpin turn (about 180 degrees): on the right;
+    //    - once round (about 360 degrees): on the left, where it is widest for a spinning
+    //      black hole, and only when it is at least 1 pixel wide (usually it is not).
+    //    Always the same sides, so the points do not jump when a setting changes.
     const near = [0, 1].map(j => {
       const e = edgeOf(A[j]);
-      return e > 0 ? [A[j][e - 1].r, A[j][Math.min(PROBE_N - 1, e + 6)].r] : [0, 0];
+      return e > 0 ? [A[j][e - 1].r, A[j][Math.min(PROBE_N - 1, e + 24)].r] : [0, 0];
     });
     const B = readProbe([0, 180*DEG, 0, 0], [near[0][0], near[1][0], 0, 0], [near[0][1], near[1][1], 1, 1]);
-    let n2side = 1;                       // which side of the equator: 0 right, 1 left
+    const n2side = 1;                     // which side of the equator: 0 right, 1 left
+    let uturnSide = 0;
     if (B) {
-      const ring = [0, 1].map(j => near[j][1] > 0 ?
-        longest(runsOf(B[j], s => s.kind === 1 && Math.abs(s.defl - 2*Math.PI) < 1.2)) : null);
-      n2side = ring[1] && onScreen(middleOf(ring[1])) ? 1 : ring[0] && onScreen(middleOf(ring[0])) ? 0 : 1;
-      if (ring[n2side] && onScreen(middleOf(ring[n2side]))) found.n2 = middleOf(ring[n2side]);
+      const camRun = (j, target) => near[j][1] > 0 ?
+        longest(runsOf(B[j], s => s.kind === 1 && Math.abs(s.defl - target) < 1.0)) : null;
+      const pxWide = (j, run) => run.length*(near[j][1] - near[j][0])/PROBE_N*W/xs;
+      const n2 = camRun(1, 2*Math.PI);
+      if (n2 && pxWide(1, n2) >= 1 && onScreen(middleOf(n2))) found.n2 = middleOf(n2);
+      // the hairpin ring on the right; on the left only if there is none on the right (and
+      // then not together with the once-round point, which would sit on top of it)
+      const ut = [0, 1].map(j => camRun(j, Math.PI));
+      uturnSide = ut[0] && onScreen(middleOf(ut[0])) ? 0 : 1;
+      if (uturnSide === 1 && found.n2) found.n2 = null;
+      if (ut[uturnSide] && onScreen(middleOf(ut[uturnSide]))) found.uturn = middleOf(ut[uturnSide]);
     }
 
     // 3. the broad starry ring, in the upper half on the other side: the widest stretch of
@@ -146,14 +161,14 @@ function runProbe(){
       if (found.weak) break;
     }
 
-    // 5. two lines into the shadow, below the centre and turned away from the "once round" point
-    const shadowAng = n2side === 1 ? [300*DEG, 270*DEG] : [240*DEG, 270*DEG];
+    // 5. two lines into the shadow: below the centre, and turned away from the hairpin point
+    const shadowAng = [270*DEG, uturnSide === 0 ? 240*DEG : 300*DEG];
     const C = readProbe([shadowAng[0], shadowAng[1], 0, 0], [0, 0, 0, 0], [R, R, 1, 1]);
     if (C) {
       // the shadow: close to the centre (from 30% of the way to its edge outwards), at the
       // first spot whose ring stays clear of the other points; if there is none, the spot
       // with the most room, unless the rings would overlap badly (a very small black hole)
-      const others = ['n1', 'n2', 'weak'].filter(k => found[k]).map(k => screen(found[k]));
+      const others = ['n1', 'uturn', 'n2', 'weak'].filter(k => found[k]).map(k => screen(found[k]));
       const room = s => { const p = screen(s); return Math.min(Infinity, ...others.map(o => Math.hypot(p.left - o.left, p.top - o.top))); };
       let sh = null, shRoom = -1;
       search: for (const row of [0, 1]) {
@@ -175,14 +190,15 @@ function runProbe(){
     probeFailed = true; updatePointsUI(); return;
   }
 
-  // ring size: 34 px, smaller when points are close together (a small black hole), so that
-  // all four still fit; at least 16 px
+  // ring size: 34 px (times --ui on big screens, see style.css), smaller when points are
+  // close together (a small black hole), so that they all still fit; at least 16 px
   const placed = PROBE_ROWS.filter(k => found[k]).map(k => screen(found[k]));
   let gap = Infinity;
   for (let i = 0; i < placed.length; i++)
     for (let j = i + 1; j < placed.length; j++)
       gap = Math.min(gap, Math.hypot(placed[i].left - placed[j].left, placed[i].top - placed[j].top));
-  el('points').style.setProperty('--pt', Math.round(Math.max(16, Math.min(34, gap*0.85))) + 'px');
+  const ui = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui')) || 1;
+  el('points').style.setProperty('--pt', Math.round(Math.max(16, Math.min(34*ui, gap*0.85))) + 'px');
 
   for (const k of PROBE_ROWS) {
     const b = document.querySelector('.pt[data-k="' + k + '"]'), s = found[k];
@@ -228,6 +244,8 @@ const POINT_RAYS = {
   weak:   'M 264 70 C 220 40, 140 38, 50 72',
   // from the stars behind the camera, around the far side of the black hole, back to the camera
   n1:     'M 16 30 L 160 30 C 226 30, 232 120, 168 120 C 118 120, 78 96, 50 80',
+  // from the mirror image of you behind the camera, a hairpin turn around the black hole
+  uturn:  'M 24 34 L 160 34 C 222 34, 226 116, 168 116 C 120 116, 80 94, 50 80',
   // from you, once all the way around the black hole, then to the camera
   n2:     'M 264 74 L 170 50 A 25 25 0 1 0 170 100 A 25 25 0 1 0 170 50 C 128 50, 84 62, 50 74',
   // from you towards the camera, but too close to the black hole: it spirals in
@@ -236,7 +254,9 @@ const POINT_RAYS = {
 function pointArt(k){
   const dots = [[62, 18], [98, 132], [128, 20], [232, 134], [250, 16], [292, 100], [206, 142], [114, 104], [292, 30]]
     .map(([x, y]) => '<circle cx="' + x + '" cy="' + y + '" r="1.2"/>').join('');
-  const behind = k === 'n1' ? '<g fill="#fff"><circle cx="16" cy="30" r="3"/><circle cx="8" cy="52" r="1.7"/><circle cx="24" cy="12" r="1.5"/></g>' : '';
+  const behind = k === 'n1' ? '<g fill="#fff"><circle cx="16" cy="30" r="3"/><circle cx="8" cy="52" r="1.7"/><circle cx="24" cy="12" r="1.5"/></g>'
+               : k === 'uturn' ? '<g fill="#c3b6e0" opacity=".6"><circle cx="14" cy="34" r="6"/><path d="M3 62 C 3 44, 25 44, 25 62 z"/></g>'   // the mirror image of you
+               : '';
   return '<svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">' +
     '<defs><marker id="ptArrow-' + k + '" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">' +
       '<path d="M0 0 L10 5 L0 10 z" fill="#ff6c9c"/></marker></defs>' +
@@ -261,7 +281,7 @@ function showPoint(k){
   el('pointTitle').textContent = t('pt_' + k + 'T');
   // n1: the text says what is shown there: star sky, background picture, or camera picture
   const bdShown = bdReady && bdChoice.value !== 'stars' && bgMode.value !== 'off';
-  const variant = k !== 'n1' ? '' : s.kind === 1 ? 'Cam' : bdShown ? 'Bd' : '';
+  const variant = k === 'n1' && bdShown ? 'Bd' : '';
   el('pointText').textContent = t('pt_' + k + variant);
   el('pointDefl').textContent = k === 'shadow' ? '' : t('ptBent', {d: Math.round(s.defl*180/Math.PI)});
   el('pointArt').innerHTML = pointArt(k);

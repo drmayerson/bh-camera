@@ -10,7 +10,17 @@ const CACHE = 'bhc-offline-v1';      // raise v1 when a picture in backgrounds/ 
 const SCOPE = new URL('./', self.location).pathname;          // /bh-camera/
 // stored at installation; keep the js/ files in step with the <script> list in index.html
 const CORE = [
-  './', 'texts.js', 'style.css',
+  './', 'texts.js', 'style.css', 'fonts/fonts.css',
+  'fonts/atkinson-hyperlegible-400-italic-latin-ext.woff2',
+  'fonts/atkinson-hyperlegible-400-italic-latin.woff2',
+  'fonts/atkinson-hyperlegible-400-latin-ext.woff2',
+  'fonts/atkinson-hyperlegible-400-latin.woff2',
+  'fonts/atkinson-hyperlegible-700-latin-ext.woff2',
+  'fonts/atkinson-hyperlegible-700-latin.woff2',
+  'fonts/jetbrains-mono-latin-ext.woff2',
+  'fonts/jetbrains-mono-latin.woff2',
+  'fonts/unbounded-latin-ext.woff2',
+  'fonts/unbounded-latin.woff2',
   'js/01-lensing-shader.js', 'js/02-setup.js', 'js/03-settings.js', 'js/04-drawing.js', 'js/05-camera.js',
   'js/06-panel.js', 'js/07-background-removal.js', 'js/08-background-pictures.js', 'js/09-photos.js',
   'js/10-hand-photo.js', 'js/11-physics-points.js', 'js/12-main.js',

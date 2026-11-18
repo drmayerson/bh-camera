@@ -5,13 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zwart gat camera</title>
 <meta name="description" content="Bekijk jezelf door een draaiend zwart gat: je camerabeeld wordt live afgebogen volgens de algemene relativiteitstheorie.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;500;700&display=swap">
+<!-- link previews (WhatsApp, e-mail, social media) and the browser-tab icon -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://drmayerson.github.io/bh-camera/">
+<meta property="og:title" content="Black hole camera">
+<meta property="og:description" content="See yourself through a spinning black hole: your camera picture, bent live according to general relativity.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23140e26'/%3E%3Ccircle cx='16' cy='16' r='9.5' fill='none' stroke='%23ff9a3c' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23000'/%3E%3C/svg%3E">
+<!-- fonts served from this site (fonts/, Open Font License) -->
+<link rel="stylesheet" href="fonts/fonts.css?v=2026111901">
 <!-- ?v=: raise this number whenever texts.js changes, so browsers fetch the new texts -->
-<script src="texts.js?v=2026111802"></script>
+<script src="texts.js?v=2026111901"></script>
 <!-- page styles; ?v=: raise it whenever style.css changes -->
-<link rel="stylesheet" href="style.css?v=2026111802">
+<link rel="stylesheet" href="style.css?v=2026111901">
 </head>
 <body>
 <!-- the picture: the camera image, bent by the black hole (drawn by the shader) -->
@@ -77,6 +83,7 @@
     <p data-t-html="what2"></p>
     <p data-t-html="what3"></p>
     <p data-t-html="what4"></p>
+    <p data-t-html="what5"></p>
   </div>
 </div>
 <!-- physics explanation points on the picture (placed by js/11-physics-points.js) and the
@@ -85,6 +92,7 @@
 <div class="points" id="points" hidden>
   <button class="pt" data-k="weak" aria-label="Een klein beetje afgebogen" data-t-attr="aria-label:pt_weakT" hidden></button>
   <button class="pt" data-k="n1" aria-label="Licht van naast en achter de camera" data-t-attr="aria-label:pt_n1T" hidden></button>
+  <button class="pt" data-k="uturn" aria-label="Haarspeldbocht: licht van recht achter de camera" data-t-attr="aria-label:pt_uturnT" hidden></button>
   <button class="pt" data-k="n2" aria-label="Eén keer helemaal rond" data-t-attr="aria-label:pt_n2T" hidden></button>
   <button class="pt" data-k="shadow" aria-label="De schaduw" data-t-attr="aria-label:pt_shadowT" hidden></button>
 </div>
@@ -135,6 +143,21 @@
     <button id="demoBtn" class="primary" data-t="demo" aria-pressed="true">Voorbeeldbeeld</button>
     <button id="fsBtn" data-t="fullscreen" aria-pressed="false">Volledig scherm</button>
   </div>
+  <p class="hint" id="camNote"></p>
+
+  <label>
+    <span class="lab"><span data-t="spin">Draaiing (a/M)</span><span id="spinVal"></span></span>
+    <input type="range" id="spin" min="0" max="0.99" step="0.01" value="0.9">
+  </label>
+  <label>
+    <span class="lab"><span data-t="incl">Kijkhoek</span><span id="inclVal"></span></span>
+    <input type="range" id="incl" min="0" max="90" step="1" value="90">
+  </label>
+  <label>
+    <span class="lab"><span data-t="size">Massa (grootte)</span><span id="massVal"></span></span>
+    <input type="range" id="mass" min="1" max="6" step="0.1" value="3">
+  </label>
+
   <label id="camPickRow" hidden>
     <span data-t="camPick">Camera</span>
     <select id="camPick"></select>
@@ -157,28 +180,14 @@
     </select>
   </label>
   <p class="hint" id="qualityNote"></p>
-  <p class="hint" id="camNote"></p>
-
-  <label>
-    <span class="lab"><span data-t="spin">Draaiing van het zwarte gat</span><span id="spinVal"></span></span>
-    <input type="range" id="spin" min="0" max="0.99" step="0.01" value="0.9">
-  </label>
-  <label>
-    <span class="lab"><span data-t="incl">Kijkhoek</span><span id="inclVal"></span></span>
-    <input type="range" id="incl" min="0" max="90" step="1" value="90">
-  </label>
-  <label>
-    <span class="lab"><span data-t="size">Grootte</span><span id="massVal"></span></span>
-    <input type="range" id="mass" min="1" max="6" step="0.1" value="3">
-  </label>
   <fieldset>
     <legend data-t="alwaysLegend">Zichtbaar als de instellingen verborgen zijn</legend>
     <label class="check">
-      <input type="checkbox" id="keepSpin">
+      <input type="checkbox" id="keepSpin" checked>
       <span data-t="keepSpin">Knoppen voor de draaiing</span>
     </label>
     <label class="check">
-      <input type="checkbox" id="keepMass">
+      <input type="checkbox" id="keepMass" checked>
       <span data-t="keepMass">Knoppen voor de grootte</span>
     </label>
     <label class="check">
@@ -190,7 +199,7 @@
       <span data-t="keepLang">Taalknoppen voor bezoekers</span>
     </label>
     <label class="check">
-      <input type="checkbox" id="keepInfo">
+      <input type="checkbox" id="keepInfo" checked>
       <span data-t="keepInfo">Uitlegknop (i) voor bezoekers</span>
     </label>
     <label class="check">
@@ -379,18 +388,18 @@
      Names declared at the top level of one file are visible in the files after it.
      ?v=: raise this number whenever a file in js/ changes, so browsers fetch the new
      version instead of an old copy. Keep this list in step with CORE in sw.js. -->
-<script src="js/01-lensing-shader.js?v=2026111802"></script>
-<script src="js/02-setup.js?v=2026111802"></script>
-<script src="js/03-settings.js?v=2026111802"></script>
-<script src="js/04-drawing.js?v=2026111802"></script>
-<script src="js/05-camera.js?v=2026111802"></script>
-<script src="js/06-panel.js?v=2026111802"></script>
-<script src="js/07-background-removal.js?v=2026111802"></script>
-<script src="js/08-background-pictures.js?v=2026111802"></script>
-<script src="js/09-photos.js?v=2026111802"></script>
-<script src="js/10-hand-photo.js?v=2026111802"></script>
-<script src="js/11-physics-points.js?v=2026111802"></script>
-<script src="js/12-main.js?v=2026111802"></script>
+<script src="js/01-lensing-shader.js?v=2026111901"></script>
+<script src="js/02-setup.js?v=2026111901"></script>
+<script src="js/03-settings.js?v=2026111901"></script>
+<script src="js/04-drawing.js?v=2026111901"></script>
+<script src="js/05-camera.js?v=2026111901"></script>
+<script src="js/06-panel.js?v=2026111901"></script>
+<script src="js/07-background-removal.js?v=2026111901"></script>
+<script src="js/08-background-pictures.js?v=2026111901"></script>
+<script src="js/09-photos.js?v=2026111901"></script>
+<script src="js/10-hand-photo.js?v=2026111901"></script>
+<script src="js/11-physics-points.js?v=2026111901"></script>
+<script src="js/12-main.js?v=2026111901"></script>
 
 </body>
 </html>

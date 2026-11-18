@@ -194,10 +194,14 @@ async function keepAwake(){
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
 keepAwake();
 
+// (iPhone Safari cannot show a web page full screen: there the button is not shown)
+const canFullscreen = typeof document.documentElement.requestFullscreen === 'function';
 function toggleFullscreen(){
+  if (!canFullscreen) return;
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   else document.documentElement.requestFullscreen().catch(() => {});
 }
+el('fsBtn').hidden = !canFullscreen;
 el('fsBtn').addEventListener('click', toggleFullscreen);
 // the button is coloured in while the page is full screen (also when switched with F or Esc)
 function updateFsBtn(){

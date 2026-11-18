@@ -88,7 +88,7 @@ function save(){
 
 // ---------- value labels next to the sliders (and in the tap controls) ----------
 
-function spinText(v){ return Number(v) === 0 ? t('spinStill') : 'a/M = ' + Number(v).toFixed(2); }
+function spinText(v){ return Number(v) === 0 ? t('spinStill') : Number(v).toFixed(2) + ' (max. 1)'; }
 
 function labels(){
   el('spinVal').textContent = spinText(spin.value);

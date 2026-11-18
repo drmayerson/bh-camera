@@ -19,12 +19,25 @@ let plateMs = 0;                          // time per frame of the background mo
 // when not to measure (just after a change)
 let lastFrameT = 0, slowAvg = 16, slowSince = 0, settleUntil = 0;
 
+// One screen refresh. The next one is requested first, and errors are caught, so that one
+// error (in a photo, say) can never freeze the picture at an unattended booth.
+let frameErrors = 0;
 function frame(now){
+  requestAnimationFrame(frame);
+  try {
+    drawFrame(now);
+  } catch (e) {
+    if (++frameErrors <= 5) console.error('frame:', e);   // (log the first few only)
+    shotPending = false; shotBusy = false;               // a photo that failed: ready for the next
+  }
+}
+
+function drawFrame(now){
   // automatic quality: measure frames that did not recompute the lens map
   if (quality === 'auto' && lastFrameT && now > settleUntil && document.visibilityState === 'visible') {
     const dt = now - lastFrameT;
     if (dt < 500) slowAvg = 0.9*slowAvg + 0.1*dt;
-    if (slowAvg > 22 && canvas.width*canvas.height > NORMAL_PX*1.05) {      // 22 ms per frame = about 45 frames per second (see 04)
+    if (slowAvg > 22 && canvas.width*canvas.height > MIN_PX*1.05) {      // 22 ms per frame = about 45 frames per second (see 04)
       if (!slowSince) slowSince = now;
       else if (now - slowSince > 3000) {   // too slow for 3 s: draw 30% fewer pixels
         autoScale *= 0.7;
@@ -75,7 +88,6 @@ function frame(now){
   // physics points (11): measure after a change; not in the first second, so the first
   // picture is not held up by compiling the measuring shader
   if (probeDirty && pointsOn.checked && !probeFailed && now > 1000) runProbe();
-  requestAnimationFrame(frame);
 }
 
 
@@ -203,7 +215,20 @@ document.querySelectorAll('.langs [data-lang]').forEach(b => b.addEventListener(
 
 // the picture can be lost (graphics driver reset, laptop waking up): start again, with
 // the same settings (they are remembered)
-canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); fail(t('glLost')); setTimeout(() => location.reload(), 1500); });
+// Repeated losses (a weak GPU that cannot keep up) are counted in this tab: the restart then
+// begins with fewer pixels (04-drawing.js), and after 3 losses within 3 minutes the page
+// stops restarting and says so, instead of reloading forever.
+canvas.addEventListener('webglcontextlost', e => {
+  e.preventDefault();
+  const now = Date.now();
+  let lost = [];
+  try { lost = JSON.parse(sessionStorage.getItem(LOST_KEY) || '[]').filter(x => now - x < 180000); } catch (err) {}
+  lost.push(now);
+  try { sessionStorage.setItem(LOST_KEY, JSON.stringify(lost)); } catch (err) {}
+  if (lost.length >= 3) { fail(t('glLoop')); return; }
+  fail(t('glLost'));
+  setTimeout(() => location.reload(), 1500);
+});
 
 // the demo text is drawn on a canvas, so redraw it once the web font has arrived
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
