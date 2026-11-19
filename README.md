@@ -15,7 +15,8 @@ What it can do:
 - photos: by click, arrow key, presenter remote, or by **raising a hand** (no touching);
   saved on the computer and/or offered to visitors as a **QR code** to download on their
   phone (needs your own small photo service, see below);
-- Dutch, English, French and German; works offline after one visit; PIN lock for an
+- Dutch, English, French and German (first visit: the browser's language); works offline
+  after one visit (fonts included, nothing loaded from Google Fonts); PIN lock for an
   unattended touch screen.
 
 Everything is set in **Instellingen** (the gear, bottom left). For running it at an

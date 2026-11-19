@@ -2,8 +2,11 @@
 // After one visit with internet, the page also starts without internet: the page itself,
 // the texts, the background pictures, the fonts, the QR library and (once they have been
 // used) the person-recognition files are kept on this computer.
-// - page, texts, style sheet and scripts: fetched fresh when there is internet (so updates
-//   arrive), from the cache when there is none or it takes longer than 4 s;
+// - the page: fetched fresh when there is internet (so updates arrive), from the cache when
+//   there is none or it takes longer than 4 s;
+// - its texts, style sheets and scripts: from the same place as the page, so an old page
+//   never gets new files or the other way round (fresh: they wait for the network, and the
+//   cache is used only when there is no network at all);
 // - everything else (pictures, fonts, fixed library versions, AI models): cache first.
 // The photo service (QR codes) is never cached.
 const CACHE = 'bhc-offline-v1';      // raise v1 when a picture in backgrounds/ changes (pictures are cache-first)
@@ -28,7 +31,7 @@ const CORE = [
   'backgrounds/pillars.jpg', 'backgrounds/deep-field.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'
 ];
-const CDN = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'storage.googleapis.com'];
+const CDN = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'storage.googleapis.com'];
 
 // installation: store the CORE files (a file that fails is skipped, not fatal)
 self.addEventListener('install', e => {
@@ -46,6 +49,9 @@ self.addEventListener('activate', e => {
     .then(() => self.clients.claim()));
 });
 
+// pages (browser tabs) that were served from the cache: their own files come from the cache too
+const pagesFromCache = new Set();
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -53,15 +59,33 @@ self.addEventListener('fetch', e => {
   const own = url.origin === self.location.origin;
   if (own && !url.pathname.startsWith(SCOPE)) return;          // other pages of this site
   if (!own && !CDN.includes(url.hostname)) return;             // e.g. the photo service
-  const fresh = own && (req.mode === 'navigate' || url.pathname === SCOPE ||
-                        url.pathname.endsWith('/index.html') || /\.(js|css)$/.test(url.pathname));
-  e.respondWith(fresh ? networkFirst(req) : cacheFirst(req));
+  if (req.mode === 'navigate' || url.pathname === SCOPE || url.pathname.endsWith('/index.html')) e.respondWith(page(e));
+  else if (own && /\.(js|css)$/.test(url.pathname)) e.respondWith(pagesFromCache.has(e.clientId) ? cacheThenNetwork(req) : networkThenCache(req));
+  else e.respondWith(cacheFirst(req));
 });
 
-async function networkFirst(req){
+// The page: fresh from the network, but from the cache if that takes longer than 4 s or
+// there is no network. (A late answer from the network still updates the cache.)
+async function page(e){
+  const req = e.request, c = await caches.open(CACHE);
+  const net = fetch(req).then(r => { if (r.ok) c.put(stripSearch(req), r.clone()); return r; });
+  try {
+    return await Promise.race([net, new Promise((_, no) => setTimeout(() => no(new Error('slow')), 4000))]);
+  } catch (err) {
+    const hit = await c.match(req, {ignoreSearch: true});
+    if (!hit) return net;                 // nothing stored yet: keep waiting for the network
+    net.catch(() => {});
+    if (e.resultingClientId) pagesFromCache.add(e.resultingClientId);
+    return hit;
+  }
+}
+
+// a file of a fresh page: from the network (however long it takes); from the cache only
+// when there is no network at all
+async function networkThenCache(req){
   const c = await caches.open(CACHE);
   try {
-    const r = await Promise.race([fetch(req), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 4000))]);
+    const r = await fetch(req);
     if (r.ok) c.put(stripSearch(req), r.clone());
     return r;
   } catch (err) {
@@ -69,6 +93,12 @@ async function networkFirst(req){
     if (hit) return hit;
     throw err;
   }
+}
+
+// a file of a page that came from the cache: from the cache as well
+async function cacheThenNetwork(req){
+  const c = await caches.open(CACHE);
+  return (await c.match(req, {ignoreSearch: true})) || networkThenCache(req);
 }
 
 async function cacheFirst(req){
@@ -80,7 +110,7 @@ async function cacheFirst(req){
   return r;
 }
 
-// the page is stored without ?pinreset etc., so it is found again with any address suffix
+// stored without ?v=, ?pinreset etc. (one copy per file), so it is found with any suffix
 function stripSearch(req){
   const u = new URL(req.url); u.search = '';
   return u.href;

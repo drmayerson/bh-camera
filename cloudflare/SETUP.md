@@ -143,7 +143,7 @@ The Worker refuses to show any photo older than 24 hours either way.
 
 ## If something doesn't work
 
-- **"verkeerde standsleutel"**: the key in Instellingen differs from `BOOTH_KEY`.
+- **"wrong booth key"**: the key in Instellingen differs from `BOOTH_KEY`.
 - **"adres niet bereikbaar"**: check the Worker address (it starts with `https://`), and
   that `ALLOWED_ORIGIN` is exactly `https://drmayerson.github.io` (no slash at the end).
 - **Upload fails at the booth** (no internet): the photo is saved on the booth computer

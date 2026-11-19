@@ -18,12 +18,12 @@ What was checked (November 2026):
 | Memory over several minutes in booth mode | stable: goes up and down between 9 and 60 MB and keeps returning to 9 MB (no leak) |
 | Camera unplugged during use | message on screen, automatic reconnect every 3 s, falls back to another camera if the chosen one is gone |
 | Restart of browser / computer | page comes back as it was left (settings, language, camera on, panel hidden), if "Onthouden" is on |
-| Graphics driver reset / laptop waking up | page restarts itself with the same settings |
+| Graphics driver reset / laptop waking up | page restarts itself with the same settings (with fewer pixels at first); if the picture is lost 3 times within 3 minutes it stops and shows a message instead of restarting forever |
 | Screen going to sleep | the page asks the browser to keep the screen on while it is open (Chrome/Edge) |
 | Starting without internet | after one visit with internet, the page starts offline too (offline cache): page, texts, pictures, fonts, QR library, and the person recognition once it has been used; tested by switching the web server off and reloading |
 | Mouse pointer | disappears after 3 s without movement |
 | Photo keys | click, arrow keys, PageUp/PageDown (what most presenter remotes send), or a raised open hand (option) |
-| Languages | NL (default), EN, FR, DE; visitor download page follows the phone's language |
+| Languages | NL, EN, FR, DE: on a first visit the browser's language (English otherwise), after that the remembered choice; visitor download page follows the phone's language |
 
 ## Setting up the laptop (once, before the expo)
 
@@ -42,16 +42,19 @@ What was checked (November 2026):
    camera picture is then used, sharper and with a wider view. Settings shows a hint when
    a portrait screen is used with a landscape camera.
    **Picture quality** is *Automatisch* by default: full screen resolution (e.g. 4K), stepping
-   down to the laptop level only if the picture would stutter. Settings shows the size drawn.
+   down if the picture would stutter (on slow devices such as phones as far as about 0.5
+   megapixels). Settings shows the size drawn.
 5. **Open the page** <https://drmayerson.github.io/bh-camera/>, click **Camera aan**
    and allow the camera; in the site settings (padlock icon left of the address) set
    *Camera* to **Allow**, so it starts by itself next time.
 6. **Settings** (gear bottom left): language, camera (if there are several), background mode
    and picture, photo options (see [cloudflare/SETUP.md](cloudflare/SETUP.md) for the QR
-   service), tap controls for spin/size if wanted, and keep **Onthouden** ticked.
+   service), and keep **Onthouden** ticked. The (i) button and the spin/size arrows are on by
+   default; untick them under *Zichtbaar als de instellingen verborgen zijn* if not wanted.
 7. **Photo folder:** if photos are saved on the laptop, choose a folder under *Opslaan in*
    (this avoids a "Save as" window for every photo) and allow "on every visit".
-8. **Full screen:** button **Volledig scherm** or key **F**.
+8. **Full screen:** button **Volledig scherm** or key **F** (on an iPhone, which cannot show a web
+   page full screen, the button is not shown).
 9. **Restart test:** close the browser, open the page again: it should come back exactly
    as set up, camera running.
 10. **Offline test:** with internet, use every mode you plan to use once (especially the
@@ -79,7 +82,7 @@ folder permissions are already granted.
 | Take a photo | click in the picture, arrow key, PageUp/PageDown (presenter remote) |
 | Countdown 3-2-1 | tick *Aftellen voor de foto* in Settings |
 | Photo without touching | tick *Hand opsteken* (under *Een foto nemen*): an open hand held up to the camera for a moment takes the photo (with the countdown if ticked; a hint at the bottom of the screen tells visitors). To test: with the settings open, the note under the option shows how many hands, and open hands, the camera sees right now |
-| Physics explanation | the pulsing rings on the picture (option *Uitlegpunten in het beeld*, on by default): tap one for what the light did there |
+| Physics explanation | the pulsing rings on the picture (option *Uitlegpunten in het beeld*, on by default): tap one for what the light did there (a little bent; from beside and behind the camera; a hairpin turn; once round, only when that ring is visible; the shadow) |
 | Show recent QR codes again | key **Q** or the small **QR** button bottom right (press again for older ones) |
 | Hide QR code / cancel countdown | **Esc** |
 | Spin, size, background picture without opening Settings | arrows at the right edge (tick the options in Settings) |

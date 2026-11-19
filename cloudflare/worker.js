@@ -29,13 +29,13 @@ export default {
     const cors = corsHeaders(req, env);
     if (req.method === 'OPTIONS') return new Response(null, {status: 204, headers: cors});
     const st = storage(env);
-    if (!st) return json({error: 'Geen opslag gekoppeld (PHOTOS_KV of PHOTOS).'}, 500, cors);
+    if (!st) return json({error: 'no storage connected (PHOTOS_KV or PHOTOS)'}, 500, cors);
 
     if (url.pathname === '/upload' && req.method === 'POST') {
-      if (!(await keyOK(req, env))) return json({error: 'verkeerde standsleutel'}, 403, cors);
-      if ((req.headers.get('Content-Type') || '').split(';')[0].trim() !== 'image/jpeg') return json({error: 'alleen JPEG'}, 415, cors);
+      if (!(await keyOK(req, env))) return json({error: 'wrong booth key'}, 403, cors);
+      if ((req.headers.get('Content-Type') || '').split(';')[0].trim() !== 'image/jpeg') return json({error: 'only JPEG photos'}, 415, cors);
       const body = await req.arrayBuffer(), b = new Uint8Array(body);
-      if (body.byteLength > MAX_BYTES) return json({error: 'foto te groot'}, 413, cors);
+      if (body.byteLength > MAX_BYTES) return json({error: 'photo too large'}, 413, cors);
       if (body.byteLength < 100 || b[0] !== 0xFF || b[1] !== 0xD8 || b[2] !== 0xFF) return json({error: 'not a JPEG'}, 415, cors);
       const now = Date.now(), id = now.toString(36) + '.' + randomPart();
       const name = (req.headers.get('X-Photo-Name') || 'black-hole.jpg').replace(/[^\w.-]/g, '').slice(0, 80) || 'black-hole.jpg';
@@ -57,7 +57,7 @@ export default {
     }
 
     if (url.pathname === '/check' && req.method === 'GET') {
-      if (!(await keyOK(req, env))) return json({error: 'verkeerde standsleutel'}, 403, cors);
+      if (!(await keyOK(req, env))) return json({error: 'wrong booth key'}, 403, cors);
       return json({ok: true, keepHours: KEEP_MS/3600000}, 200, cors);
     }
 
@@ -67,7 +67,7 @@ export default {
       const obj = age != null && age < KEEP_MS ? await st.get(id) : null;
       if (!obj) {
         if (age != null && age >= KEEP_MS) await st.del(id).catch(() => {});
-        return new Response('Deze foto is niet (meer) beschikbaar.', {status: 404, headers: privateHeaders({'Content-Type': 'text/plain; charset=utf-8'})});
+        return new Response('This photo is not (or no longer) available.', {status: 404, headers: privateHeaders({'Content-Type': 'text/plain; charset=utf-8'})});
       }
       const disp = url.searchParams.has('download') ? 'attachment' : 'inline';
       return new Response(obj.body, {headers: privateHeaders({
