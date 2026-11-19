@@ -112,6 +112,10 @@ nl: {
   // photo button on screen
   shotBtnOn: `Fotoknop in beeld (handig op een telefoon)`,
   shotBtn: `Foto maken`,
+  // phones: save or share a photo
+  shareBtn: `Bewaar of deel je foto`,
+  shareReady: `Je foto is klaar! Tik op de knop onderaan om hem te bewaren of te delen.`,
+  shotNoteShare: `Op deze telefoon verschijnt na elke foto een knop om hem in je foto's te bewaren of te delen.`,
   // messages
   noWebGL: `Je browser kan geen WebGL gebruiken, dus het zwarte gat kan niet getekend worden. Zet hardwareversnelling aan in de instellingen van je browser, of probeer een recente Chrome, Edge, Firefox of Safari.`,
   glFail: `Het zwarte gat kon niet getekend worden op dit toestel. Probeer een recente Chrome, Edge, Firefox of Safari, met hardwareversnelling aan.`,
@@ -271,6 +275,10 @@ en: {
   // photo button on screen
   shotBtnOn: `Photo button on screen (handy on a phone)`,
   shotBtn: `Take a photo`,
+  // phones: save or share a photo
+  shareBtn: `Save or share your photo`,
+  shareReady: `Your photo is ready! Tap the button below to save or share it.`,
+  shotNoteShare: `On this phone, a button appears after every photo to save it to your photos or share it.`,
   // messages
   noWebGL: `Your browser cannot use WebGL, so the black hole cannot be drawn. Turn on hardware acceleration in your browser's settings, or try an up-to-date Chrome, Edge, Firefox or Safari.`,
   glFail: `The black hole could not be drawn on this device. Try an up-to-date Chrome, Edge, Firefox or Safari, with hardware acceleration on.`,
@@ -430,6 +438,10 @@ fr: {
   // photo button on screen
   shotBtnOn: `Bouton photo à l'écran (pratique sur un téléphone)`,
   shotBtn: `Prendre une photo`,
+  // phones: save or share a photo
+  shareBtn: `Enregistrez ou partagez votre photo`,
+  shareReady: `Votre photo est prête ! Touchez le bouton en bas pour l'enregistrer ou la partager.`,
+  shotNoteShare: `Sur ce téléphone, un bouton apparaît après chaque photo pour l'enregistrer dans vos photos ou la partager.`,
   // messages
   noWebGL: `Votre navigateur ne peut pas utiliser WebGL : le trou noir ne peut pas être dessiné. Activez l'accélération matérielle dans les réglages du navigateur, ou essayez une version récente de Chrome, Edge, Firefox ou Safari.`,
   glFail: `Le trou noir n'a pas pu être dessiné sur cet appareil. Essayez une version récente de Chrome, Edge, Firefox ou Safari, avec l'accélération matérielle activée.`,
@@ -589,6 +601,10 @@ de: {
   // photo button on screen
   shotBtnOn: `Fotoknopf im Bild (praktisch auf dem Handy)`,
   shotBtn: `Foto machen`,
+  // phones: save or share a photo
+  shareBtn: `Foto speichern oder teilen`,
+  shareReady: `Dein Foto ist fertig! Tippe unten auf den Knopf, um es zu speichern oder zu teilen.`,
+  shotNoteShare: `Auf diesem Handy erscheint nach jedem Foto ein Knopf, um es in deinen Fotos zu speichern oder zu teilen.`,
   // messages
   noWebGL: `Dein Browser kann kein WebGL verwenden, deshalb kann das Schwarze Loch nicht gezeichnet werden. Schalte die Hardwarebeschleunigung in den Browser-Einstellungen ein oder probiere einen aktuellen Chrome, Edge, Firefox oder Safari.`,
   glFail: `Das Schwarze Loch konnte auf diesem Gerät nicht gezeichnet werden. Probiere einen aktuellen Chrome, Edge, Firefox oder Safari mit eingeschalteter Hardwarebeschleunigung.`,

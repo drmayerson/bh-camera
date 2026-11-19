@@ -13,7 +13,8 @@ What it can do:
   works at a booth with people at a distance) and show the stars or a picture instead;
 - clickable **explanation points** on the picture: what the light did there;
 - photos: by click, arrow key, presenter remote, a **photo button** on screen (on by default
-  on phones), or by **raising a hand** (no touching);
+  on phones), or by **raising a hand** (no touching); on a phone a button then saves the photo
+  in the photo album or shares it;
   saved on the computer and/or offered to visitors as a **QR code** to download on their
   phone (needs your own small photo service, see below);
 - Dutch, English, French and German (first visit: the browser's language); works offline

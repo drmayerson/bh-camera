@@ -21,8 +21,9 @@ const D = 200, XSCALE = D*Math.cos(0.3);
 // Picture quality: how many pixels are drawn.
 //  normal: at most 2.4 million (a laptop screen; enlarged on bigger screens)
 //  high:   the screen's full resolution (up to about 4K)
-//  auto:   full resolution, stepping down while the picture is too slow (frame rate below
-//          ~45 for a few seconds) and back up after two minutes of smooth drawing; never
+//  auto:   full resolution, stepping down while the picture is too slow (clearly slower
+//          than the screen's own refresh rate, measured at start, for a few seconds; see
+//          12-main.js) and back up after two minutes of smooth drawing; never
 //          below "normal" on laptops and big screens, down to MIN_PX on phones (and after
 //          the picture was lost, see below)
 const NORMAL_PX = 2.4e6, HARD_PX = 9e6;    // HARD_PX: absolute limit, about 4K (3840 x 2160 = 8.3 million)

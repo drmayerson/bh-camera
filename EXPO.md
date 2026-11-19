@@ -42,7 +42,9 @@ What was checked (November 2026):
    camera picture is then used, sharper and with a wider view. Settings shows a hint when
    a portrait screen is used with a landscape camera.
    **Picture quality** is *Automatisch* by default: full screen resolution (e.g. 4K), stepping
-   down if the picture would stutter, and back up after two smooth minutes. On laptops and
+   down if the picture would stutter, and back up after two smooth minutes ("stutter" is
+   judged against the screen's own refresh rate, measured at start, so 50 Hz and 30 Hz TVs
+   work too; `bhcStats()` shows it as screenHz). On laptops and
    big screens it never goes below the laptop level (2.4 megapixels); phones may go down to
    about 0.5 megapixels. Settings shows the size drawn.
 5. **Open the page** <https://drmayerson.github.io/bh-camera/>, click **Camera aan**

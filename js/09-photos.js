@@ -26,6 +26,12 @@ const shotsOn = el('shotsOn'), shotLocal = el('shotLocal'), shotQR = el('shotQR'
 function photosOn(){ return shotsOn.checked || el('handOn').checked || el('shotBtnOn').checked; }
 const qrBase = el('qrBase'), qrKey = el('qrKey');            // address and key of the photo service
 const canPickDir = typeof window.showDirectoryPicker === 'function';   // Chrome/Edge: save in a chosen folder
+// a phone that can hand a photo to its share sheet (to save it in the photo album; see keepLocally)
+const CAN_SHARE_FILES = (() => {
+  try { return IS_PHONE && typeof navigator.canShare === 'function' &&
+               navigator.canShare({files: [new File([''], 'test.jpg', {type: 'image/jpeg'})]}); }
+  catch (e) { return false; }
+})();
 // shotDir: the chosen folder (or null: Downloads); shotPending: grab the next frame;
 // shotBusy: a photo is still being saved / uploaded
 let shotDir = null, shotPending = false, shotBusy = false;
@@ -39,8 +45,9 @@ function updateShotUI(){
   el('shotDirName').textContent = shotDir ? shotDir.name : t('downloads');
   el('shotDirReset').hidden = !shotDir;
   el('shotDirBtn').hidden = !canPickDir;
-  el('shotNote').textContent = canPickDir ? (shotDir ? t('shotNoteDir') : t('shotNoteDl'))
-                                          : t('shotNoteNoPick');
+  el('shotNote').textContent = CAN_SHARE_FILES ? t('shotNoteShare')
+                            : canPickDir ? (shotDir ? t('shotNoteDir') : t('shotNoteDl'))
+                            : t('shotNoteNoPick');
   if (!qrNoteSticky) el('qrNote').textContent = qrConfigured() ? t('qrNoteOk') : t('qrNoteNeed');
   updateCamNote();
   updateQrAgain();
@@ -177,7 +184,7 @@ async function handleShot(blob, thumb, upBlob){
   if (!blob) { toast(t('shotFail')); return; }
   const name = 'black-hole_' + stamp() + '.jpg';
   const wantLocal = shotLocal.checked, wantQR = shotQR.checked;
-  const local = wantLocal ? saveLocal(blob, name) : null;
+  const local = wantLocal ? keepLocally(blob, name) : null;
   if (wantQR) {
     showQRWaiting(thumb);
     try {
@@ -190,7 +197,7 @@ async function handleShot(blob, thumb, upBlob){
       console.warn('upload failed', e);
       hideQR();
       const why = e && e.name === 'AbortError' ? t('noAnswer') : (e && e.message) || t('error');
-      if (!wantLocal) { await saveLocal(blob, name); toast(t('upFailSaved', {why})); }
+      if (!wantLocal) { await keepLocally(blob, name); toast(t('upFailSaved', {why})); }
       else toast(t('upFailAlso', {why}));
       return;
     }
@@ -200,6 +207,45 @@ async function handleShot(blob, thumb, upBlob){
     if (!wantQR) toast(msg);
   }
 }
+
+// Keep the photo on this device; returns (a promise of) a message for the user. On a phone
+// that can share files: a button "Bewaar of deel je foto" that opens the phone's share sheet
+// (there "Save Image" puts it in the photo album; a download would end up in Downloads or
+// Files). Phones only open that sheet straight after a tap, hence a button rather than
+// opening it by itself after the countdown and upload. Elsewhere: saved as before.
+function keepLocally(blob, name){
+  return offerShare(blob, name) ? Promise.resolve(t('shareReady')) : saveLocal(blob, name);
+}
+
+let shareFile = null, shareTimer = null;   // the photo waiting to be saved or shared, and its time limit
+function offerShare(blob, name){
+  if (!CAN_SHARE_FILES) return false;
+  shareFile = new File([blob], name, {type: 'image/jpeg'});
+  el('shareBtn').hidden = false;
+  document.body.classList.add('share-on');
+  clearTimeout(shareTimer);
+  shareTimer = setTimeout(hideShare, 30000);   // the button goes away after 30 s
+  return true;
+}
+function hideShare(){
+  el('shareBtn').hidden = true;
+  document.body.classList.remove('share-on');
+  shareFile = null;
+  clearTimeout(shareTimer);
+}
+el('shareBtn').addEventListener('click', async () => {
+  if (!shareFile) return;
+  const f = shareFile;
+  try {
+    await navigator.share({files: [f], title: t('title')});
+    hideShare();
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;   // closed the share sheet: the button stays
+    console.warn('sharing failed, downloading instead', e);
+    hideShare();
+    toast(await saveLocal(f, f.name));
+  }
+});
 
 // save on this computer; returns a message for the user
 async function saveLocal(blob, name){

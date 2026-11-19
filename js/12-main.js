@@ -22,12 +22,32 @@ let lastFrameT = 0, slowAvg = 16, slowSince = 0, settleUntil = 0;
 // (after going up made it too slow again, it waits 15 minutes)
 let fastSince = 0, raisedAt = -1e9, noRaiseUntil = 0;
 
+// The screen's own refresh interval (16.7 ms at 60 Hz, 20 at 50 Hz, 33 at 30 Hz), measured
+// at start: the first CALIB_FRAMES refreshes draw nothing, so each takes exactly one
+// refresh. "Too slow" and "smooth" are judged against it (never stricter than 60 Hz).
+const CALIB_FRAMES = 40;
+let calib = {left: CALIB_FRAMES, last: 0, dts: []};
+let refreshMs = 1000/60;
+const pace = () => Math.max(refreshMs, 1000/60);   // the frame time to aim for
+function calibrate(now){
+  if (document.visibilityState !== 'visible') { calib.last = 0; return; }   // (hidden: wait)
+  if (calib.last) calib.dts.push(now - calib.last);
+  calib.last = now;
+  if (--calib.left > 0) return;
+  // a quarter of the way up the sorted intervals: ignores the odd late refresh
+  const d = calib.dts.filter(x => x > 4).sort((a, b) => a - b);
+  if (d.length >= 10) refreshMs = d[Math.floor(d.length/4)];
+  slowAvg = pace();
+  calib = null;
+}
+
 // One screen refresh. The next one is requested first, and errors are caught, so that one
 // error (in a photo, say) can never freeze the picture at an unattended booth.
 // The same error in every frame for about 5 s is treated like a lost picture (pictureLost).
 let frameErrors = 0;                      // errors in a row
 function frame(now){
   requestAnimationFrame(frame);
+  if (calib) { calibrate(now); return; }  // (the first refreshes: measuring the screen)
   try {
     drawFrame(now);
     frameErrors = 0;
@@ -43,18 +63,20 @@ function drawFrame(now){
   if (quality === 'auto' && lastFrameT && now > settleUntil && document.visibilityState === 'visible') {
     const dt = now - lastFrameT;
     if (dt < 500) slowAvg = 0.9*slowAvg + 0.1*dt;
-    if (slowAvg > 22 && canvas.width*canvas.height > minPx()*1.05) {    // 22 ms per frame = about 45 frames per second (see 04)
+    // too slow: clearly slower than the screen shows (frames are skipped); at 60 Hz that is
+    // 22.5 ms per frame, about 45 frames per second
+    if (slowAvg > pace()*1.35 && canvas.width*canvas.height > minPx()*1.05) {
       fastSince = 0;
       if (!slowSince) slowSince = now;
       else if (now - slowSince > 3000) {   // too slow for 3 s: draw 30% fewer pixels
         autoScale *= 0.7;
         if (now - raisedAt < 30000) noRaiseUntil = now + 15*60000;   // going up did not work
-        slowSince = 0; slowAvg = 16; settleUntil = now + 2000;
+        slowSince = 0; slowAvg = pace(); settleUntil = now + 2000;
       }
     } else {
       slowSince = 0;
       // smooth (at the screen's refresh rate) for 2 minutes: draw more pixels again
-      if (slowAvg < 18 && autoScale < 1 && now > noRaiseUntil) {
+      if (slowAvg < pace()*1.1 && autoScale < 1 && now > noRaiseUntil) {
         if (!fastSince) fastSince = now;
         else if (now - fastSince > 120000) {
           autoScale = Math.min(1, autoScale/0.7);
@@ -122,7 +144,7 @@ let fpsCount = 0, fpsT0 = performance.now(), fpsNow = 0;
 window.bhcStats = () => {
   const pct = (a, test) => a ? Math.round(100*a.reduce((s, v) => s + (test(v) ? 1 : 0), 0)/a.length) + '%' : '-';
   return {
-    fps: fpsNow, drawn: canvas.width + 'x' + canvas.height, quality,
+    fps: fpsNow, screenHz: Math.round(1000/refreshMs), drawn: canvas.width + 'x' + canvas.height, quality,
     camera: video.videoWidth ? video.videoWidth + 'x' + video.videoHeight : '-', camRot,
     maskMs: +plateMs.toFixed(1), networkMs: +aiMs.toFixed(0), network: workerModel, on: aiDelegateNote, ready: workerReady, error: workerError,
     shownAsPerson: pct(pbin, v => v), networkPerson: pct(aiMask, v => v > 0.5), backgroundUnknown: pct(bCount, v => v < 3)
@@ -194,7 +216,7 @@ el('camRot').addEventListener('change', () => {
   updateCamRotHint(); save();
 });
 el('quality').addEventListener('change', () => {
-  quality = el('quality').value; autoScale = 1; slowSince = 0; slowAvg = 16;
+  quality = el('quality').value; autoScale = 1; slowSince = 0; slowAvg = pace();
   try { sessionStorage.removeItem(LOW_KEY); } catch (e) {}   // staff chose: no forced low quality
   resize(); updateQualityNote(); save();
 });
