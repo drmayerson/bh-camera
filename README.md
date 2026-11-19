@@ -122,3 +122,19 @@ on any web server (https is needed for the camera). Then use that address as
 | `backgrounds/` | background pictures (NASA) |
 | `cloudflare/` | the photo service and its setup guide |
 | `EXPO.md` | checklist for running it at an event |
+| `fonts/` | the three fonts, served from this site (with their licences) |
+| `LICENSE` | the licence (MIT) |
+
+
+## Licence
+
+The code is released under the **MIT licence** (see [`LICENSE`](LICENSE)): you may use,
+copy, change and share it, also in your own exhibits, as long as the copyright notice
+stays with it.
+
+Not covered by that licence:
+
+- **the fonts** in `fonts/` (Atkinson Hyperlegible, JetBrains Mono, Unbounded): SIL Open
+  Font License, see the `OFL-*.txt` files there;
+- **the background pictures** in `backgrounds/`: NASA, and NASA/ESA (Hubble), credited in
+  the app next to each picture; check their own terms before reusing them elsewhere.
