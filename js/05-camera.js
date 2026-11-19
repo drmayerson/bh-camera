@@ -164,17 +164,17 @@ function drawUpright(ctx, w, h){
 // picture doesn't change when someone walks in. The current values are kept.
 let camLocked = false;
 async function lockCamera(on){
-  const t = video.srcObject && video.srcObject.getVideoTracks()[0];
-  if (!t || !t.getCapabilities || on === camLocked) return;
+  const track = video.srcObject && video.srcObject.getVideoTracks()[0];
+  if (!track || !track.getCapabilities || on === camLocked) return;
   camLocked = on;
-  const caps = t.getCapabilities(), st = t.getSettings ? t.getSettings() : {};
+  const caps = track.getCapabilities(), st = track.getSettings ? track.getSettings() : {};
   const mode = on ? 'manual' : 'continuous';
   // [mode setting, value that goes with it]
   for (const [k, v] of [['exposureMode', 'exposureTime'], ['whiteBalanceMode', 'colorTemperature'], ['focusMode', 'focusDistance']]) {
     if (!Array.isArray(caps[k]) || !caps[k].includes(mode)) continue;
     const c = {[k]: mode};
     if (on && st[v] != null) c[v] = st[v];
-    try { await t.applyConstraints({advanced: [c]}); } catch (e) { console.warn('camera lock', k, e); }
+    try { await track.applyConstraints({advanced: [c]}); } catch (e) { console.warn('camera lock', k, e); }
   }
 }
 

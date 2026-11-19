@@ -4,7 +4,8 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
 /* =====================================================================================
    Black hole camera — 11: physics explanation points
    -------------------------------------------------------------------------------------
-   Four small pulsing rings on the picture; tapping one explains what the light did there:
+   Up to five small pulsing rings on the picture; tapping one explains what the light did
+   there:
      weak    a bit of bending (light that passed the black hole at a distance)
      n1      the broad starry ring: light bent so strongly that it came from beside or
              behind the camera (about half way round the black hole)
@@ -123,7 +124,6 @@ function runProbe(){
       return e > 0 ? [A[j][e - 1].r, A[j][Math.min(PROBE_N - 1, e + 24)].r] : [0, 0];
     });
     const B = readProbe([0, 180*DEG, 0, 0], [near[0][0], near[1][0], 0, 0], [near[0][1], near[1][1], 1, 1]);
-    const n2side = 1;                     // (the starry-ring point goes on the other side of this)
     let uturnSide = 1;                    // which side of the equator: 0 right, 1 left
     if (B) {
       const camRun = (j, target) => near[j][1] > 0 ?
@@ -139,18 +139,17 @@ function runProbe(){
       if (ut[uturnSide] && onScreen(middleOf(ut[uturnSide]))) found.uturn = middleOf(ut[uturnSide]);
     }
 
-    // 3. the broad starry ring, in the upper half on the other side: the widest stretch of
-    //    sky that starts right next to strongly bent light (not the sky in the far corners),
-    //    and the point in the middle of it
-    const skyLine = A[n2side === 1 ? 2 : 3];
-    const sky = longest(runsOf(skyLine, s => s.kind === 2).filter(run => run[0].defl > 1.5));
+    // 3. the broad starry ring, on the upper-right line (35 degrees; the hairpin point is
+    //    usually on the left): the widest stretch of sky that starts right next to strongly
+    //    bent light (not the sky in the far corners), and the point in the middle of it
+    const sky = longest(runsOf(A[2], s => s.kind === 2).filter(run => run[0].defl > 1.5));
     if (sky && onScreen(middleOf(sky))) found.n1 = middleOf(sky);
 
-    // 4. a little bending (about 11 degrees, on the camera picture): on the equator as well,
+    // 4. a little bending (about 11 degrees, on the camera picture), far out on the equator:
     //    on the left (the middle of the left edge has no buttons; the tap controls are on the
-    //    right), far out on the line of the "once round" point. If that is off the screen (a
-    //    large black hole on a narrow screen), the furthest spot that is still on it, as long
-    //    as the bending there is small (below about 30 degrees).
+    //    right), else on the right. If no such spot is on the screen (a large black hole on a
+    //    narrow screen), the furthest spot that is still on it, as long as the bending there
+    //    is small (below about 30 degrees).
     for (const line of [A[1], A[0]]) {
       let best = null, furthest = null;
       for (const s of line) {
@@ -190,9 +189,14 @@ function runProbe(){
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     probeFailed = true; updatePointsUI(); return;
   }
+  placePoints(found, screen);
+}
 
-  // ring size: 34 px (times --ui on big screens, see style.css), smaller when points are
-  // close together (a small black hole), so that they all still fit; at least 16 px
+// Put the rings on the screen: found[k] is the sample for point k (or none: hidden),
+// screen(sample) its position in CSS pixels.
+// Ring size: 34 px (times --ui on big screens, see style.css), smaller when points are
+// close together (a small black hole), so that they all still fit; at least 16 px.
+function placePoints(found, screen){
   const placed = PROBE_ROWS.filter(k => found[k]).map(k => screen(found[k]));
   let gap = Infinity;
   for (let i = 0; i < placed.length; i++)
@@ -252,6 +256,7 @@ const POINT_RAYS = {
   // from you towards the camera, but too close to the black hole: it spirals in
   shadow: 'M 264 72 C 232 70, 206 58, 190 62 C 178 65, 182 82, 170 82 C 160 82, 158 70, 166 70'
 };
+// the whole picture for point k, as SVG markup (also the stars, you, the camera)
 function pointArt(k){
   const dots = [[62, 18], [98, 132], [128, 20], [232, 134], [250, 16], [292, 100], [206, 142], [114, 104], [292, 30]]
     .map(([x, y]) => '<circle cx="' + x + '" cy="' + y + '" r="1.2"/>').join('');
@@ -275,7 +280,8 @@ function pointArt(k){
 
 // ---------- the explanation of one point ----------
 
-let pointTimer = null, pointShown = null;
+let pointTimer = null, pointShown = null;   // pointShown: the point whose card is open
+// open the card of point k: title, text, how much the light was bent, drawing
 function showPoint(k){
   pointShown = k;
   const s = pointInfo[k] || {};

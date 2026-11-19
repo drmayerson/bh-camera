@@ -5,8 +5,8 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
    Black hole camera — 06: settings panel and visitor controls
    -------------------------------------------------------------------------------------
    - opening and closing the settings (gear button bottom left);
-   - the tap controls at the right edge (spin, size, background picture), shown while
-     the settings are hidden;
+   - the tap controls at the right edge (spin, size, background picture; on an upright
+     phone at the bottom), shown while the settings are hidden;
    - the (i) explanation for visitors;
    - the PIN lock for unattended touch screens;
    - the banner at the top (instructions and the 3-2-1 while recording the empty scene,

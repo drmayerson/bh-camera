@@ -19,12 +19,18 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
    are open it keeps looking, and the note under the option says what it sees (for testing).
    ===================================================================================== */
 
+
+// ---------- settings ----------
+
 const handOn = el('handOn');
 const HAND_MODEL = 'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task';
 const HAND_EVERY = 200;                   // ms between two looks
 const HAND_NEED = 2, HAND_WINDOW = 1500;  // an open hand in 2 looks within 1.5 s: take a photo
 const HAND_PAUSE = 8000;                  // ms after a photo before a hand counts again
 const HAND_ZOOM = [0.15, 0, 0.7, 0.7];    // every other look: this part of the picture (x, y, w, h)
+
+
+// ---------- the worker (runs the recogniser, off the main thread) ----------
 
 // The worker's own code. Messages:
 //   in:  {type: 'init', lib, model}    load MediaPipe and the gesture model
@@ -74,7 +80,10 @@ self.onmessage = async e => {
   }
 };`;
 
-let handWorker = null;                    // the running worker (or null)
+
+// ---------- starting and stopping ----------
+
+let handWorker = null;                   // the running worker (or null)
 let handReady = false;                    // model loaded
 let handBusy = false;                     // a frame is being looked at
 let handError = null;                     // why it does not work (shown in the note)
@@ -85,6 +94,7 @@ let handSeen = null;                      // what is seen now: {hands, open, at}
 let handLast = [{hands: 0, open: 0}, {hands: 0, open: 0}];   // the last two looks
 const handCanvas = document.createElement('canvas');   // scratch, for a camera on its side
 
+// start the worker and load the model (handReady once it has loaded)
 function startHand(){
   handError = null; handReady = false; handBusy = false;
   try {
@@ -101,12 +111,16 @@ function startHand(){
   updateHandNote();
 }
 
+// stop the worker and forget what was seen (keepError: keep the reason it failed, for the note)
 function stopHand(keepError){
   if (handWorker) handWorker.terminate();
   handWorker = null; handReady = false; handBusy = false; palmTimes = []; handSeen = null;
   handLast = [{hands: 0, open: 0}, {hands: 0, open: 0}];
   if (!keepError) handError = null;
 }
+
+
+// ---------- looking, and deciding to take a photo ----------
 
 const settingsOpen = () => !panel.classList.contains('hidden');
 
@@ -125,7 +139,7 @@ function handResult(hands, open){
   handSeen = {hands: Math.max(hands, handLast[1].hands), open: Math.max(open, handLast[1].open), at: now};
   if (settingsOpen()) updateHandNote();
   if (open > 0) palmTimes.push(now);
-  palmTimes = palmTimes.filter(t => now - t < HAND_WINDOW);
+  palmTimes = palmTimes.filter(at => now - at < HAND_WINDOW);
   el('handHint').classList.toggle('seen', palmTimes.length > 0);
   if (palmTimes.length >= HAND_NEED && handLooking()) {
     palmTimes = [];
@@ -153,6 +167,9 @@ async function sendHand(){
   } catch (e) { handBusy = false; }
 }
 
+
+// ---------- note for staff, hint for visitors ----------
+
 // note under the setting; while the settings are open it also says what is seen right now
 function updateHandNote(){
   const n = el('handNote');
@@ -168,6 +185,9 @@ function updateHandHint(){
   el('handHint').hidden = !(handReady && handOn.checked && useVideo &&
                             !settingsOpen() && !counting && el('qrBox').hidden);
 }
+
+
+// ---------- the loop, and switching the setting ----------
 
 // every HAND_EVERY ms: start or stop the worker as needed, and send a frame when free
 // (also while the settings are open, for the note; photos only when handLooking())

@@ -6,6 +6,8 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
    -------------------------------------------------------------------------------------
    - the render loop: every screen refresh, take the newest camera frame, run the
      background removal, and draw (computing the lens map again only after a change);
+     at start it first measures the screen's refresh rate, which the automatic picture
+     quality is judged against;
    - console helpers for staff: bhcStats(), bhcOffline();
    - the remaining settings: "Onthouden", camera on its side, picture quality, language;
    - start-up: the offline cache, then everything shown as it was left last time.
@@ -58,33 +60,41 @@ function frame(now){
   }
 }
 
-function drawFrame(now){
-  // automatic quality: measure frames that did not recompute the lens map
-  if (quality === 'auto' && lastFrameT && now > settleUntil && document.visibilityState === 'visible') {
-    const dt = now - lastFrameT;
-    if (dt < 500) slowAvg = 0.9*slowAvg + 0.1*dt;
-    // too slow: clearly slower than the screen shows (frames are skipped); at 60 Hz that is
-    // 22.5 ms per frame, about 45 frames per second
-    if (slowAvg > pace()*1.35 && canvas.width*canvas.height > minPx()*1.05) {
-      fastSince = 0;
-      if (!slowSince) slowSince = now;
-      else if (now - slowSince > 3000) {   // too slow for 3 s: draw 30% fewer pixels
-        autoScale *= 0.7;
-        if (now - raisedAt < 30000) noRaiseUntil = now + 15*60000;   // going up did not work
-        slowSince = 0; slowAvg = pace(); settleUntil = now + 2000;
-      }
-    } else {
-      slowSince = 0;
-      // smooth (at the screen's refresh rate) for 2 minutes: draw more pixels again
-      if (slowAvg < pace()*1.1 && autoScale < 1 && now > noRaiseUntil) {
-        if (!fastSince) fastSince = now;
-        else if (now - fastSince > 120000) {
-          autoScale = Math.min(1, autoScale/0.7);
-          fastSince = 0; raisedAt = now; settleUntil = now + 2000;
-        }
-      } else fastSince = 0;
+// Automatic picture quality (setting "Automatisch"): from the time since the last frame,
+// draw fewer pixels (autoScale, used by resize() in 04) while the picture is too slow, and
+// more again after it has been smooth for a while. Frames just after a change (which
+// recompute the lens map) are not measured.
+function autoQuality(now){
+  if (quality !== 'auto' || !lastFrameT || now <= settleUntil || document.visibilityState !== 'visible') return;
+  const dt = now - lastFrameT;
+  if (dt < 500) slowAvg = 0.9*slowAvg + 0.1*dt;
+  // too slow: clearly slower than the screen shows (frames are skipped); at 60 Hz that is
+  // 22.5 ms per frame, about 45 frames per second
+  if (slowAvg > pace()*1.35 && canvas.width*canvas.height > minPx()*1.05) {
+    fastSince = 0;
+    if (!slowSince) slowSince = now;
+    else if (now - slowSince > 3000) {     // too slow for 3 s: draw 30% fewer pixels
+      autoScale *= 0.7;
+      if (now - raisedAt < 30000) noRaiseUntil = now + 15*60000;   // going up did not work
+      slowSince = 0; slowAvg = pace(); settleUntil = now + 2000;
     }
+  } else {
+    slowSince = 0;
+    // smooth (at the screen's refresh rate) for 2 minutes: draw more pixels again
+    if (slowAvg < pace()*1.1 && autoScale < 1 && now > noRaiseUntil) {
+      if (!fastSince) fastSince = now;
+      else if (now - fastSince > 120000) {
+        autoScale = Math.min(1, autoScale/0.7);
+        fastSince = 0; raisedAt = now; settleUntil = now + 2000;
+      }
+    } else fastSince = 0;
   }
+}
+
+// Draw one frame: new camera frame -> background removal -> lens map (only after a change)
+// -> picture on screen; then a photo, and the physics points, if they are waiting.
+function drawFrame(now){
+  autoQuality(now);
   lastFrameT = now;
   resize();
 
@@ -97,9 +107,9 @@ function drawFrame(now){
     const m = bgMode.value;
     try {
       if (usesPlate()) {
-        const t = performance.now();
+        const t0 = performance.now();
         plateStep();
-        plateMs = 0.9*plateMs + 0.1*(performance.now() - t);
+        plateMs = 0.9*plateMs + 0.1*(performance.now() - t0);
       }
       else if (m === 'ai') sizeProc();
       if (worker && workerReady && !workerBusy && (m === 'ai' || m === 'booth')) sendAI();

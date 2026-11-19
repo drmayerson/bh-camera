@@ -20,13 +20,18 @@
      declared; functions may refer to anything, since they only run after start-up.
 
    Where to find what (numbers are the files in js/)
-     taking a photo:   click in the picture (07, last section), arrow keys (09) or a raised
-                       hand (10) -> takeShot() (09) -> frame() calls grabShot() (12)
-                       -> handleShot() (09)
+     taking a photo:   click in the picture (07, last section), arrow keys or the photo
+                       button (09), or a raised hand (10) -> takeShot() (09) -> drawFrame()
+                       calls grabShot() (12) -> handleShot() (09): kept on this device
+                       (keepLocally: folder, Downloads, or on a phone the share sheet)
+                       and/or uploaded for a QR code
      physics points:   PROBE_PASS in the shader (01) measures the bending -> runProbe() (11),
-                       called from frame() (12) after the lens map changed
-     the lens map:     a change sets `dirty` (03) -> frame() redraws MAP_PASS into the map (12);
-                       allocMap() (02); the physics itself in the shader (01)
+                       called from drawFrame() (12) after the lens map changed
+     the lens map:     a change sets `dirty` (03) -> drawFrame() redraws MAP_PASS into the
+                       map (12); allocMap() (02); the physics itself in the shader (01)
+     picture quality:  how many pixels: resize(), minPx() (04); automatic: autoQuality(),
+                       measured screen refresh rate calibrate() (12); a lost picture:
+                       pictureLost() (12)
      remembered:       restored at start and written by save() (03); language (02); camera
                        on / which camera (05); settings hidden (06); the PIN in its own key (06);
                        own background picture and photo folder in IndexedDB (08)
@@ -36,7 +41,8 @@
    Glossary
      bd...    backdrop: the background picture shown where the background is removed
      plate    a recorded (or learned) empty background, used to find the people in front
-     dock     the tap controls at the right edge (spin, size, background picture)
+     dock     the tap controls at the right edge (spin, size, background picture); on an
+              upright phone at the bottom
      keep...  the ticks "visible when the settings are hidden" (keepSpin, keepLang, ...)
      shot     a photo;  el(id) = document.getElementById(id) (03)
      background picture choice: 'stars' = star sky, 'own' = own picture, else a file in backgrounds/
@@ -62,8 +68,7 @@ try {
 
 // Text `k` in the current language (falls back to Dutch, then to the key itself).
 // {name} placeholders are filled in from `v`, e.g. t('camN', {n: 2}).
-// Note: several functions have a local variable named t (a texture, track, time or
-// text); inside those, t is that variable, not this function.
+// (So no JavaScript variable is called t: that would hide this function.)
 function t(k, v){
   let s = TXT[lang] && TXT[lang][k] != null ? TXT[lang][k]
         : TXT.nl && TXT.nl[k] != null ? TXT.nl[k]
@@ -163,13 +168,13 @@ gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 //   0 camera picture   1 star sky   2 lens map   3 person mask   4 background picture
 
 function makeTex(wrapS){
-  const t = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, t);
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  return t;
+  return tex;
 }
 const camTex = makeTex(gl.CLAMP_TO_EDGE);
 const skyTex = makeTex(gl.REPEAT);     // power-of-two, wraps around in longitude
@@ -204,6 +209,7 @@ function rng(seed){
   return function(){ seed = (seed*16807) % 2147483647; return (seed - 1)/2147483646; };
 }
 
+// the star sky as a canvas (uploaded into skyTex)
 function makeSky(){
   const W = 4096, H = 2048, r = rng(20261029);
 
@@ -243,7 +249,7 @@ function makeSky(){
     const z = 2*r() - 1, lo = 2*Math.PI*r(), th = Math.acos(z);
     const x = lo/(2*Math.PI)*W, y = th/Math.PI*H, st = Math.max(Math.sin(th), 0.03);
     const m = Math.pow(r(), 6), rad = 0.7 + 2.6*m, al = 0.35 + 0.65*Math.sqrt(m);
-    const t = r(), col = t < 0.15 ? '255,210,170' : t < 0.35 ? '190,215,255' : '255,255,250';
+    const tint = r(), col = tint < 0.15 ? '255,210,170' : tint < 0.35 ? '190,215,255' : '255,255,250';
     ctx.fillStyle = 'rgba(' + col + ',' + al.toFixed(3) + ')';
     for (const dx of [0, -W, W]) {             // also drawn one width left and right: no seam
       ctx.beginPath();

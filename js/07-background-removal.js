@@ -442,7 +442,7 @@ function onWorker(e){
 async function sendAI(){
   workerBusy = true;
   const m = MODELS[workerModel], rects = [{id: 'full', r: [0, 0, 1, 1]}];
-  if (workerModel === 'deeplab') { const t = tileTurn++ % TILES.length; rects.push({id: 'tile' + t, r: TILES[t]}); }
+  if (workerModel === 'deeplab') { const tile = tileTurn++ % TILES.length; rects.push({id: 'tile' + tile, r: TILES[tile]}); }
   try {
     // the networks need people upright: turn a sideways camera picture first
     let bm;
@@ -459,7 +459,7 @@ async function sendAI(){
 
 // ---------- 6. mode switching and explanations ----------
 
-function bgNote(t){ el('bgNote').textContent = t || ''; }
+function bgNote(msg){ el('bgNote').textContent = msg || ''; }
 function aiStatus(){
   if (workerError) return t('aiFail');
   if (!workerReady) return t('aiLoading');
@@ -539,6 +539,6 @@ canvas.addEventListener('click', e => {
   const d = c.getImageData(0, 0, 2*R + 1, 2*R + 1).data;
   let s = [0, 0, 0], k = 0;
   for (let i = 0; i < d.length; i += 4) if (d[i+3] > 0) { s[0] += d[i]; s[1] += d[i+1]; s[2] += d[i+2]; k++; }
-  if (k) { keyRGB = s.map(t => Math.round(t/k)); labels(); save(); }
+  if (k) { keyRGB = s.map(v => Math.round(v/k)); labels(); save(); }
   stopPicking();
 });

@@ -4,16 +4,22 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
 /* =====================================================================================
    Black hole camera — 09: photos and QR codes
    -------------------------------------------------------------------------------------
-   A click in the picture (or an arrow key) takes a photo of what is on screen: only the
-   black-hole image, without the settings. It can be saved on this computer (in Chrome/Edge
-   in a chosen folder, without dialogs; otherwise via Downloads) and/or uploaded to the
-   booth's own photo service (cloudflare/worker.js), which gives a QR code for the
-   visitor's phone. Uploaded photos are deleted after 24 hours.
+   A photo is taken of what is on screen: only the black-hole image, without the settings.
+   Ways to take one: a click / tap in the picture, an arrow key (or presenter remote), the
+   photo button on screen, or a raised hand (10-hand-photo.js).
+   The photo can be kept on this device and/or uploaded to the booth's own photo service
+   (cloudflare/worker.js), which gives a QR code for the visitor's phone (uploaded photos
+   are deleted after 24 hours). Kept on this device means: in Chrome/Edge in a chosen
+   folder, without dialogs; on a phone, a button that opens the share sheet (to save it in
+   the photo album); otherwise via Downloads.
 
    Flow: takeShot() (optional countdown) -> flag shotPending -> the render loop draws a
-   frame and calls grabShot() -> handleShot() saves and/or uploads -> showQR().
+   frame and calls grabShot() -> handleShot() keeps and/or uploads -> showQR().
    (The click in the picture is handled in 07-background-removal.js, last section, because
    the same click also picks the green-screen colour.)
+
+   Contents: photo settings · taking a photo · keeping and uploading (on a phone: save or
+   share) · the photo service · QR code on screen · keys
    ===================================================================================== */
 
 
@@ -79,9 +85,9 @@ if (canPickDir) idbGet('shotDir').then(h => { if (h) { shotDir = h; updateShotUI
 
 // short message at the bottom of the screen
 let toastTimer = null;
-function toast(t){
+function toast(msg){
   const e = el('toast');
-  e.textContent = t;
+  e.textContent = msg;
   e.hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { e.hidden = true; }, 4000);
@@ -94,7 +100,7 @@ function countdown(){
   return new Promise(resolve => {
     const box = el('count');
     let n = 3, timer = null;
-    const show = (t, snap) => { box.innerHTML = '<span' + (snap ? ' class="snap"' : '') + '>' + t + '</span>'; };
+    const show = (label, snap) => { box.innerHTML = '<span' + (snap ? ' class="snap"' : '') + '>' + label + '</span>'; };
     const done = ok => { clearTimeout(timer); countCancel = null; box.hidden = true; box.innerHTML = ''; resolve(ok); };
     countCancel = () => done(false);
     box.hidden = false; show(n);
@@ -107,6 +113,8 @@ function countdown(){
   });
 }
 
+// Take a photo (every way of taking one ends here): after the countdown, if ticked, the
+// render loop grabs the next frame (shotPending, see grabShot)
 async function takeShot(){
   if (shotBusy || shotPending || counting) return;
   if (!shotLocal.checked && !shotQR.checked) { toast(t('chooseSave')); return; }
@@ -130,6 +138,8 @@ async function takeShot(){
   f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');   // (restart the flash animation)
 }
 
+const UPLOAD_MAX = 2048;                  // longest side of the uploaded copy (pixels)
+
 // called in the render loop right after drawing, while the picture is still in the buffer
 function grabShot(){
   shotPending = false; shotBusy = true;
@@ -141,10 +151,10 @@ function grabShot(){
   for (let y = 0; y < H; y++) img.data.set(px.subarray((H - 1 - y)*row, (H - y)*row), y*row);   // GL rows are bottom-up
   x.putImageData(img, 0, 0);
   // small copy to show next to the QR code, so visitors recognise their own photo
-  const t = document.createElement('canvas'), k = 320/Math.max(W, H);
-  t.width = Math.max(1, Math.round(W*k)); t.height = Math.max(1, Math.round(H*k));
-  t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
-  const thumb = t.toDataURL('image/jpeg', 0.8);
+  const small = document.createElement('canvas'), k = 320/Math.max(W, H);
+  small.width = Math.max(1, Math.round(W*k)); small.height = Math.max(1, Math.round(H*k));
+  small.getContext('2d').drawImage(c, 0, 0, small.width, small.height);
+  const thumb = small.toDataURL('image/jpeg', 0.8);
   // for the QR download a copy of at most UPLOAD_MAX pixels wide is plenty for a phone,
   // and keeps the photo service well within its free storage (about 1 GB); the photo
   // saved on this computer keeps the full size
@@ -160,22 +170,21 @@ function grabShot(){
     if (up === c) go(b); else up.toBlob(go, 'image/jpeg', 0.9);
   }, 'image/jpeg', 0.92);
 }
-const UPLOAD_MAX = 2048;                  // longest side of the uploaded copy (pixels)
 
 // date and time for the file name, e.g. black-hole_2026-11-16_14-05-09.jpg
 let lastStamp = '', stampCount = 0;
 function stamp(){
   const d = new Date(), z = v => String(v).padStart(2, '0');
-  const t = d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + '_' +
+  const when = d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + '_' +
             z(d.getHours()) + '-' + z(d.getMinutes()) + '-' + z(d.getSeconds());
   // several photos within one second get -2, -3, ... so none is overwritten
-  stampCount = t === lastStamp ? stampCount + 1 : 1;
-  lastStamp = t;
-  return stampCount > 1 ? t + '-' + stampCount : t;
+  stampCount = when === lastStamp ? stampCount + 1 : 1;
+  lastStamp = when;
+  return stampCount > 1 ? when + '-' + stampCount : when;
 }
 
 
-// ---------- saving and uploading ----------
+// ---------- keeping and uploading ----------
 
 // Save and/or upload one photo. If the upload fails, the photo is saved on this computer
 // instead (when that was not already chosen).
@@ -212,12 +221,15 @@ async function handleShot(blob, thumb, upBlob){
 // that can share files: a button "Bewaar of deel je foto" that opens the phone's share sheet
 // (there "Save Image" puts it in the photo album; a download would end up in Downloads or
 // Files). Phones only open that sheet straight after a tap, hence a button rather than
-// opening it by itself after the countdown and upload. Elsewhere: saved as before.
+// opening it by itself after the countdown and upload. Elsewhere: saveLocal().
 function keepLocally(blob, name){
   return offerShare(blob, name) ? Promise.resolve(t('shareReady')) : saveLocal(blob, name);
 }
 
+// on a phone: the "save or share" button (bottom centre; on an upright phone above the
+// tap controls, see style.css)
 let shareFile = null, shareTimer = null;   // the photo waiting to be saved or shared, and its time limit
+// show the button for this photo; false when this device cannot share files
 function offerShare(blob, name){
   if (!CAN_SHARE_FILES) return false;
   shareFile = new File([blob], name, {type: 'image/jpeg'});
@@ -247,7 +259,7 @@ el('shareBtn').addEventListener('click', async () => {
   }
 });
 
-// save on this computer; returns a message for the user
+// save on this computer (chosen folder or Downloads); returns a message for the user
 async function saveLocal(blob, name){
   // in the chosen folder, if the browser still has permission
   if (shotDir) {
@@ -269,6 +281,9 @@ async function saveLocal(blob, name){
   setTimeout(() => URL.revokeObjectURL(url), 30000);
   return t('savedDl', {file: name});
 }
+
+
+// ---------- the photo service ----------
 
 // the photo service (cloudflare/worker.js): POST /upload, GET /check; 25 s time limit
 function serviceUrl(path){ return qrBase.value.trim().replace(/\/+$/, '') + path; }
@@ -398,8 +413,8 @@ el('qrClose').addEventListener('click', hideQR);
 
 document.addEventListener('keydown', e => {
   if (!photosOn() || picking || e.repeat || e.altKey || e.ctrlKey || e.metaKey || !el('pinPad').hidden) return;
-  const t = e.target;
-  if (t && (t.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName))) return;
+  const target = e.target;
+  if (target && (target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName))) return;
   // arrow keys, and PageUp/PageDown, which is what most presenter remotes send
   if (shotsOn.checked && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown'].includes(e.key)) { e.preventDefault(); takeShot(); }
   else if ((e.key === 'q' || e.key === 'Q') && shotQR.checked && el('qrAgainOn').checked) { e.preventDefault(); showQrAgain(); }

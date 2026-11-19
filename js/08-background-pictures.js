@@ -35,10 +35,10 @@ async function idbGet(k){
 async function idbSet(k, v){
   const db = await idbOpen();
   return new Promise((res, rej) => {
-    const t = db.transaction('kv', 'readwrite'), st = t.objectStore('kv');
+    const tx = db.transaction('kv', 'readwrite'), st = tx.objectStore('kv');
     if (v == null) st.delete(k); else st.put(v, k);
-    t.oncomplete = () => res();
-    t.onerror = () => rej(t.error);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
   });
 }
 
