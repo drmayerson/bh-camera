@@ -5,7 +5,8 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
    Black hole camera — 05: camera and expo helpers
    -------------------------------------------------------------------------------------
    - the webcam: start (1080p where possible), choose between several cameras, reconnect
-     after it was unplugged, go back to the demo picture;
+     after it was unplugged, switch it off while the page is not visible (and on again on
+     return), go back to the demo picture;
    - a camera mounted on its side: helpers that turn its picture upright;
    - fixing exposure / white balance / focus (for background removal);
    - expo helpers: keep the screen on, full screen (button or F), hide the mouse pointer.
@@ -82,6 +83,7 @@ async function startCamera(auto){
   clearInterval(camRetry); camRetry = null;
   plateValid = false; learnStartAt = 0;          // background removal (07) starts learning again
   updateCamUI(); listCams(); bgChanged();
+  if (document.visibilityState === 'hidden') cameraAway();   // (gone again while starting)
   return true;
 }
 
@@ -96,6 +98,22 @@ function cameraLost(){
     else { camErr = 'camLost'; updateCamNote(); }
   }, 3000);
 }
+
+// Away (another app in front, the tab in the background, the phone locked): the camera is
+// switched off, and started again on return. Phones pause or stop the camera while another
+// app is in front and do not always give it back (the picture would stay frozen on the last
+// frame); this way it always comes back, and the camera is free while nobody looks.
+let camAway = false;                      // switched off because the page is not visible
+function cameraAway(){
+  if (useVideo && video.srcObject) { camAway = true; stopStream(); }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') cameraAway();
+  else if (camAway) {
+    camAway = false;
+    if (camWanted) startCamera(true).then(ok => { if (!ok) cameraLost(); });
+  }
+});
 
 // cameras to choose from (names are only known once the camera has been allowed)
 async function listCams(){

@@ -48,6 +48,8 @@ function updateShotUI(){
   el('shotNone').hidden = photosOn();
   el('shotLocalSub').hidden = !shotLocal.checked;
   el('shotQRSub').hidden = !shotQR.checked;
+  // (on a phone with the share sheet there is no folder to choose: the photo goes there)
+  el('shotDirRow').hidden = CAN_SHARE_FILES;
   el('shotDirName').textContent = shotDir ? shotDir.name : t('downloads');
   el('shotDirReset').hidden = !shotDir;
   el('shotDirBtn').hidden = !canPickDir;
