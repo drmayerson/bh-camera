@@ -34,6 +34,8 @@ function updateDock(){
   el('vLangs').hidden = !(keepLang.checked && hid);
   el('infoBtn').hidden = !(keepInfo.checked && hid);
   el('pointsBtn').hidden = !(keepPoints.checked && el('pointsOn').checked && hid);   // (the points: 11)
+  el('shotBtn').hidden = !(el('shotBtnOn').checked && hid);                            // (photos: 09)
+  document.body.classList.toggle('shot-btn-on', !el('shotBtn').hidden);                 // (moves the QR button up)
   updateBdVal();
 }
 

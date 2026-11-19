@@ -28,8 +28,10 @@ let remembered = null;                   // what was stored last time (null: not
 let camRot = 0, quality = 'auto';        // camera on its side (0, 1 or 3) and picture quality
 
 // put the stored values back into the controls (an unknown or missing value keeps the default)
+let firstVisit = true;                    // nothing stored yet (for defaults that depend on the device)
 try {
   const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (s) firstVisit = false;
   if (s && s.remember === false) el('remember').checked = false;
   else if (s) {
     remembered = s;
@@ -57,11 +59,17 @@ try {
     if (s.shotCount != null) el('shotCount').checked = !!s.shotCount;
     if (s.qrAgainOn != null) el('qrAgainOn').checked = !!s.qrAgainOn;
     if (s.handOn != null) el('handOn').checked = !!s.handOn;
+    if (s.shotBtnOn != null) el('shotBtnOn').checked = !!s.shotBtnOn;
     if (s.pointsOn != null) el('pointsOn').checked = !!s.pointsOn;
     if (s.keepPoints != null) keepPoints.checked = !!s.keepPoints;
     if (Array.isArray(s.key) && s.key.length === 3) keyRGB = s.key.map(Number);
   }
 } catch (e) {}
+
+// On a first visit on a phone (a touch screen whose shorter side is at most 600 px), the
+// photo button on screen starts switched on: there is no keyboard and no booth staff.
+if (firstVisit && matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 600)
+  el('shotBtnOn').checked = true;
 
 // Store all settings (or only "don't remember"). Called after every change.
 // (Some values live in later files: camWanted, camDeviceId, panel — they exist by the
@@ -80,7 +88,7 @@ function save(){
       backdrop: el('bdChoice').value, shotsOn: el('shotsOn').checked,
       shotLocal: el('shotLocal').checked, shotQR: el('shotQR').checked, qrBase: el('qrBase').value.trim(), qrKey: el('qrKey').value,
       qrSec: el('qrSec').value, camRot, quality, shotCount: el('shotCount').checked, qrAgainOn: el('qrAgainOn').checked,
-      handOn: el('handOn').checked, pointsOn: el('pointsOn').checked, keepPoints: keepPoints.checked
+      handOn: el('handOn').checked, shotBtnOn: el('shotBtnOn').checked, pointsOn: el('pointsOn').checked, keepPoints: keepPoints.checked
     }));
   } catch (e) {}
 }

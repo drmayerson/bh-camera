@@ -19,10 +19,11 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
 
 // ---------- photo settings ----------
 
-// Two independent ways to take a photo: shotsOn (click / tap in the picture, arrow keys)
-// and a raised hand (handOn, 10-hand-photo.js). Photos are on when either is ticked.
+// Three independent ways to take a photo: shotsOn (click / tap in the picture, arrow keys),
+// a raised hand (handOn, 10-hand-photo.js) and the photo button on screen (shotBtnOn).
+// Photos are on when any of them is ticked.
 const shotsOn = el('shotsOn'), shotLocal = el('shotLocal'), shotQR = el('shotQR');
-function photosOn(){ return shotsOn.checked || el('handOn').checked; }
+function photosOn(){ return shotsOn.checked || el('handOn').checked || el('shotBtnOn').checked; }
 const qrBase = el('qrBase'), qrKey = el('qrKey');            // address and key of the photo service
 const canPickDir = typeof window.showDirectoryPicker === 'function';   // Chrome/Edge: save in a chosen folder
 // shotDir: the chosen folder (or null: Downloads); shotPending: grab the next frame;
@@ -50,6 +51,9 @@ function qrConfigured(){ return /^https?:\/\/\S+$/.test(qrBase.value.trim()) && 
 el('shotCount').addEventListener('change', save);
 el('qrAgainOn').addEventListener('change', () => { updateQrAgain(); save(); });
 [shotsOn, shotLocal, shotQR].forEach(c => c.addEventListener('change', () => { if (!photosOn() || !shotQR.checked) hideQR(); updateShotUI(); save(); }));
+// the photo button on screen (shown by updateDock in 06 while the settings are closed)
+el('shotBtnOn').addEventListener('change', () => { if (!photosOn()) hideQR(); updateShotUI(); updateDock(); save(); });
+el('shotBtn').addEventListener('click', () => takeShot());
 [qrBase, qrKey].forEach(c => c.addEventListener('input', () => { qrNoteSticky = false; updateShotUI(); save(); }));
 
 // choosing the photo folder (remembered in IndexedDB)

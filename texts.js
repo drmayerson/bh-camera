@@ -109,6 +109,9 @@ nl: {
   pt_uturnT: `Haarspeldbocht: licht van recht achter de camera`,
   pt_uturn: `Dit licht werd ongeveer 180° afgebogen: het kwam van recht áchter de camera, maakte een haarspeldbocht om het zwarte gat en ging terug naar de camera. In deze simulatie hangt achter de camera ook een spiegelbeeld van jou. Daarom zie je jezelf hier nog eens, in een dun ringetje rond de schaduw.`,
   glLoop: `Het beeld valt steeds weg: dit toestel kan het zwarte gat niet vlot genoeg tekenen. Herlaad de pagina om het opnieuw te proberen.`,
+  // photo button on screen
+  shotBtnOn: `Fotoknop in beeld (handig op een telefoon)`,
+  shotBtn: `Foto maken`,
   // messages
   noWebGL: `Je browser kan geen WebGL gebruiken, dus het zwarte gat kan niet getekend worden. Zet hardwareversnelling aan in de instellingen van je browser, of probeer een recente Chrome, Edge, Firefox of Safari.`,
   glFail: `Het zwarte gat kon niet getekend worden op dit toestel. Probeer een recente Chrome, Edge, Firefox of Safari, met hardwareversnelling aan.`,
@@ -265,6 +268,9 @@ en: {
   pt_uturnT: `Hairpin turn: light from straight behind the camera`,
   pt_uturn: `This light was bent by about 180°: it came from straight behind the camera, made a hairpin turn around the black hole and went back to the camera. In this simulation, a mirror image of you also hangs behind the camera. That is why you see yourself here once more, in a thin ring around the shadow.`,
   glLoop: `The picture keeps dropping out: this device cannot draw the black hole fast enough. Reload the page to try again.`,
+  // photo button on screen
+  shotBtnOn: `Photo button on screen (handy on a phone)`,
+  shotBtn: `Take a photo`,
   // messages
   noWebGL: `Your browser cannot use WebGL, so the black hole cannot be drawn. Turn on hardware acceleration in your browser's settings, or try an up-to-date Chrome, Edge, Firefox or Safari.`,
   glFail: `The black hole could not be drawn on this device. Try an up-to-date Chrome, Edge, Firefox or Safari, with hardware acceleration on.`,
@@ -421,6 +427,9 @@ fr: {
   pt_uturnT: `Virage en épingle : la lumière de juste derrière la caméra`,
   pt_uturn: `Cette lumière a été déviée d'environ 180° : elle venait de juste derrière la caméra, a fait un virage en épingle autour du trou noir et est revenue vers la caméra. Dans cette simulation, une image de vous en miroir se trouve aussi derrière la caméra. C'est pourquoi vous vous voyez ici encore une fois, dans un fin anneau autour de l'ombre.`,
   glLoop: `L'image ne cesse de s'interrompre : cet appareil n'arrive pas à dessiner le trou noir assez vite. Rechargez la page pour réessayer.`,
+  // photo button on screen
+  shotBtnOn: `Bouton photo à l'écran (pratique sur un téléphone)`,
+  shotBtn: `Prendre une photo`,
   // messages
   noWebGL: `Votre navigateur ne peut pas utiliser WebGL : le trou noir ne peut pas être dessiné. Activez l'accélération matérielle dans les réglages du navigateur, ou essayez une version récente de Chrome, Edge, Firefox ou Safari.`,
   glFail: `Le trou noir n'a pas pu être dessiné sur cet appareil. Essayez une version récente de Chrome, Edge, Firefox ou Safari, avec l'accélération matérielle activée.`,
@@ -577,6 +586,9 @@ de: {
   pt_uturnT: `Haarnadelkurve: Licht von direkt hinter der Kamera`,
   pt_uturn: `Dieses Licht wurde um etwa 180° abgelenkt: Es kam von direkt hinter der Kamera, machte eine Haarnadelkurve um das Schwarze Loch und lief zurück zur Kamera. In dieser Simulation hängt hinter der Kamera auch ein Spiegelbild von dir. Deshalb siehst du dich hier noch einmal, in einem dünnen Ring um den Schatten.`,
   glLoop: `Das Bild fällt immer wieder aus: Dieses Gerät kann das Schwarze Loch nicht schnell genug zeichnen. Lade die Seite neu, um es noch einmal zu versuchen.`,
+  // photo button on screen
+  shotBtnOn: `Fotoknopf im Bild (praktisch auf dem Handy)`,
+  shotBtn: `Foto machen`,
   // messages
   noWebGL: `Dein Browser kann kein WebGL verwenden, deshalb kann das Schwarze Loch nicht gezeichnet werden. Schalte die Hardwarebeschleunigung in den Browser-Einstellungen ein oder probiere einen aktuellen Chrome, Edge, Firefox oder Safari.`,
   glFail: `Das Schwarze Loch konnte auf diesem Gerät nicht gezeichnet werden. Probiere einen aktuellen Chrome, Edge, Firefox oder Safari mit eingeschalteter Hardwarebeschleunigung.`,
