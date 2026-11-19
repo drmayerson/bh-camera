@@ -302,8 +302,10 @@ function boxBlur(a, tmp, w, h, r){
 
 const MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
 const MODELS = {
-  // MediaPipe selfie segmenter: one or a few people close to the camera
-  selfie:  {url: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite', cls: -1, inW: 320, prefer: 'GPU', gapMs: 0},
+  // MediaPipe selfie segmenter: one or a few people close to the camera. On the processor,
+  // like DeepLab: on the graphics chip several phones return an empty mask (everything
+  // "background", so the person disappears); the model is small, so this costs little.
+  selfie:  {url: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite', cls: -1, inW: 320, prefer: 'CPU', gapMs: 0},
   // DeepLab v3 (PASCAL VOC, class 15 = person): people anywhere in a scene
   deeplab: {url: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite', cls: 15, inW: 513, prefer: 'CPU', gapMs: 150},
 };

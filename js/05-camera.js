@@ -29,7 +29,7 @@ let camErr = null, camRetry = null;            // text key of the current camera
 
 // note under the camera buttons: the camera problem, or else the privacy note
 function updateCamNote(){
-  el('camNote').textContent = camErr ? t(camErr) : t((el('shotsOn').checked || el('handOn').checked) && el('shotQR').checked ? 'privacyQR' : 'privacy');
+  el('camNote').textContent = camErr ? t(camErr) : t((el('shotsOn').checked || el('handOn').checked || el('shotBtnOn').checked) && el('shotQR').checked ? 'privacyQR' : 'privacy');
 }
 
 // "Camera aan" and "Voorbeeldbeeld" work as a pair: the active one is coloured in

@@ -22,17 +22,28 @@ const D = 200, XSCALE = D*Math.cos(0.3);
 //  normal: at most 2.4 million (a laptop screen; enlarged on bigger screens)
 //  high:   the screen's full resolution (up to about 4K)
 //  auto:   full resolution, stepping down while the picture is too slow (frame rate below
-//          ~45 for a few seconds), down to MIN_PX on slow devices such as phones
+//          ~45 for a few seconds) and back up after two minutes of smooth drawing; never
+//          below "normal" on laptops and big screens, down to MIN_PX on phones (and after
+//          the picture was lost, see below)
 const NORMAL_PX = 2.4e6, HARD_PX = 9e6;    // HARD_PX: absolute limit, about 4K (3840 x 2160 = 8.3 million)
-const MIN_PX = 0.5e6;                      // "auto" never goes below this
+const MIN_PX = 0.5e6;                      // "auto" on phones never goes below this
+const IS_PHONE = matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 600;
 // largest picture this GPU can draw
 const MAX_DIM = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) || 1e9,
                          ...Array.from(gl.getParameter(gl.MAX_VIEWPORT_DIMS)));
 let autoScale = 1;                      // "auto" quality: fraction of the full pixel count (lowered by the render loop)
 // after the picture was lost (graphics driver reset, a GPU that could not keep up; see the
 // start-up in 12-main.js), start again with fewer pixels
-const LOST_KEY = 'bh-camera-lost';
-try { if (JSON.parse(sessionStorage.getItem(LOST_KEY) || '[]').some(x => Date.now() - x < 180000)) autoScale = 0.3; } catch (e) {}
+// (LOW_KEY: the page gave up after repeated losses and tries again at the lowest quality)
+const LOST_KEY = 'bh-camera-lost', LOW_KEY = 'bh-camera-low';
+let lowStart = false;
+try {
+  lowStart = sessionStorage.getItem(LOW_KEY) === '1' ||
+             JSON.parse(sessionStorage.getItem(LOST_KEY) || '[]').some(x => Date.now() - x < 180000);
+} catch (e) {}
+if (lowStart) autoScale = 0.3;
+// the fewest pixels "auto" may draw
+function minPx(){ return IS_PHONE || lowStart ? MIN_PX : NORMAL_PX; }
 
 // Set the canvas to the number of pixels to draw. Called every frame (cheap when nothing
 // changed); a new size makes the lens map be computed again.
@@ -43,7 +54,7 @@ function resize(){
   const full = w*h;
   let target = quality === 'normal' ? NORMAL_PX
              : quality === 'high' ? full
-             : Math.max(MIN_PX, full*autoScale);
+             : Math.max(minPx(), full*autoScale);
   target = Math.min(target, full, HARD_PX);
   const k = Math.min(1, Math.sqrt(target/full), MAX_DIM/Math.max(w, h));
   w = Math.max(1, Math.round(w*k)); h = Math.max(1, Math.round(h*k));

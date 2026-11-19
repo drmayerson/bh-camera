@@ -18,17 +18,23 @@ let plateMs = 0;                          // time per frame of the background mo
 // automatic picture quality: frame time (smoothed), since when it is too slow, and until
 // when not to measure (just after a change)
 let lastFrameT = 0, slowAvg = 16, slowSince = 0, settleUntil = 0;
+// and its way back up: smooth since when, when it last went up, and no going up before
+// (after going up made it too slow again, it waits 15 minutes)
+let fastSince = 0, raisedAt = -1e9, noRaiseUntil = 0;
 
 // One screen refresh. The next one is requested first, and errors are caught, so that one
 // error (in a photo, say) can never freeze the picture at an unattended booth.
-let frameErrors = 0;
+// The same error in every frame for about 5 s is treated like a lost picture (pictureLost).
+let frameErrors = 0;                      // errors in a row
 function frame(now){
   requestAnimationFrame(frame);
   try {
     drawFrame(now);
+    frameErrors = 0;
   } catch (e) {
     if (++frameErrors <= 5) console.error('frame:', e);   // (log the first few only)
     shotPending = false; shotBusy = false;               // a photo that failed: ready for the next
+    if (frameErrors === 300) pictureLost();
   }
 }
 
@@ -37,13 +43,25 @@ function drawFrame(now){
   if (quality === 'auto' && lastFrameT && now > settleUntil && document.visibilityState === 'visible') {
     const dt = now - lastFrameT;
     if (dt < 500) slowAvg = 0.9*slowAvg + 0.1*dt;
-    if (slowAvg > 22 && canvas.width*canvas.height > MIN_PX*1.05) {      // 22 ms per frame = about 45 frames per second (see 04)
+    if (slowAvg > 22 && canvas.width*canvas.height > minPx()*1.05) {    // 22 ms per frame = about 45 frames per second (see 04)
+      fastSince = 0;
       if (!slowSince) slowSince = now;
       else if (now - slowSince > 3000) {   // too slow for 3 s: draw 30% fewer pixels
         autoScale *= 0.7;
+        if (now - raisedAt < 30000) noRaiseUntil = now + 15*60000;   // going up did not work
         slowSince = 0; slowAvg = 16; settleUntil = now + 2000;
       }
-    } else slowSince = 0;
+    } else {
+      slowSince = 0;
+      // smooth (at the screen's refresh rate) for 2 minutes: draw more pixels again
+      if (slowAvg < 18 && autoScale < 1 && now > noRaiseUntil) {
+        if (!fastSince) fastSince = now;
+        else if (now - fastSince > 120000) {
+          autoScale = Math.min(1, autoScale/0.7);
+          fastSince = 0; raisedAt = now; settleUntil = now + 2000;
+        }
+      } else fastSince = 0;
+    }
   }
   lastFrameT = now;
   resize();
@@ -177,6 +195,7 @@ el('camRot').addEventListener('change', () => {
 });
 el('quality').addEventListener('change', () => {
   quality = el('quality').value; autoScale = 1; slowSince = 0; slowAvg = 16;
+  try { sessionStorage.removeItem(LOW_KEY); } catch (e) {}   // staff chose: no forced low quality
   resize(); updateQualityNote(); save();
 });
 window.addEventListener('resize', updateCamRotHint);
@@ -217,18 +236,27 @@ document.querySelectorAll('.langs [data-lang]').forEach(b => b.addEventListener(
 // the same settings (they are remembered)
 // Repeated losses (a weak GPU that cannot keep up) are counted in this tab: the restart then
 // begins with fewer pixels (04-drawing.js), and after 3 losses within 3 minutes the page
-// stops restarting and says so, instead of reloading forever.
-canvas.addEventListener('webglcontextlost', e => {
-  e.preventDefault();
+// stops restarting and says so, instead of reloading forever; an unattended booth then
+// tries again by itself after 5 minutes, at the lowest quality.
+canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); pictureLost(); });
+let lostHandled = false;
+function pictureLost(){
+  if (lostHandled) return;
+  lostHandled = true;
   const now = Date.now();
   let lost = [];
   try { lost = JSON.parse(sessionStorage.getItem(LOST_KEY) || '[]').filter(x => now - x < 180000); } catch (err) {}
   lost.push(now);
   try { sessionStorage.setItem(LOST_KEY, JSON.stringify(lost)); } catch (err) {}
-  if (lost.length >= 3) { fail(t('glLoop')); return; }
+  if (lost.length >= 3) {
+    fail(t('glLoop'));
+    try { sessionStorage.setItem(LOW_KEY, '1'); } catch (err) {}
+    setTimeout(() => location.reload(), 5*60000);
+    return;
+  }
   fail(t('glLost'));
   setTimeout(() => location.reload(), 1500);
-});
+}
 
 // the demo text is drawn on a canvas, so redraw it once the web font has arrived
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {

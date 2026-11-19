@@ -9,12 +9,12 @@ if (!window.BHC_READY) throw new Error('Black hole camera: not started (see the 
      n1      the broad starry ring: light bent so strongly that it came from beside or
              behind the camera (about half way round the black hole)
      uturn   a hairpin turn: light bent by about 180 degrees, from straight behind the
-             camera. In this exhibit the camera picture also hangs behind the camera
-             (mirrored), so this is the thin ring of "you" hugging the shadow; on the right
-             of the equator
+             camera. In this simulation the camera picture also hangs behind the camera
+             (mirrored), so this is the thin ring of "you" hugging the shadow; on the left
+             of the equator (where that ring is widest for a spinning black hole)
      n2      once all the way around: a ring of the camera picture even closer to the
-             shadow, but usually far thinner than a pixel; on the left of the equator, and
-             only shown when it is at least 1 pixel wide
+             shadow, but usually far thinner than a pixel; on the right of the equator,
+             and only shown when it is at least 1 pixel wide
      shadow  the light falls into the black hole
    Where these are depends on mass, spin, viewing angle and screen. So after every change
    of the lens map, the shader measures the bending along lines from the centre
@@ -113,28 +113,29 @@ function runProbe(){
     // 2. the two thin rings of the camera picture right at the shadow are far thinner than
     //    one coarse sample, so measure again finely just outside the shadow, on both sides
     //    of the equator:
-    //    - the hairpin turn (about 180 degrees): on the right;
-    //    - once round (about 360 degrees): on the left, where it is widest for a spinning
-    //      black hole, and only when it is at least 1 pixel wide (usually it is not).
+    //    - the hairpin turn (about 180 degrees): on the left, where this visible ring is
+    //      widest for a spinning black hole;
+    //    - once round (about 360 degrees): on the right, and only when it is at least
+    //      1 pixel wide there (usually it is not).
     //    Always the same sides, so the points do not jump when a setting changes.
     const near = [0, 1].map(j => {
       const e = edgeOf(A[j]);
       return e > 0 ? [A[j][e - 1].r, A[j][Math.min(PROBE_N - 1, e + 24)].r] : [0, 0];
     });
     const B = readProbe([0, 180*DEG, 0, 0], [near[0][0], near[1][0], 0, 0], [near[0][1], near[1][1], 1, 1]);
-    const n2side = 1;                     // which side of the equator: 0 right, 1 left
-    let uturnSide = 0;
+    const n2side = 1;                     // (the starry-ring point goes on the other side of this)
+    let uturnSide = 1;                    // which side of the equator: 0 right, 1 left
     if (B) {
       const camRun = (j, target) => near[j][1] > 0 ?
         longest(runsOf(B[j], s => s.kind === 1 && Math.abs(s.defl - target) < 1.0)) : null;
       const pxWide = (j, run) => run.length*(near[j][1] - near[j][0])/PROBE_N*W/xs;
-      const n2 = camRun(1, 2*Math.PI);
-      if (n2 && pxWide(1, n2) >= 1 && onScreen(middleOf(n2))) found.n2 = middleOf(n2);
-      // the hairpin ring on the right; on the left only if there is none on the right (and
+      const n2 = camRun(0, 2*Math.PI);
+      if (n2 && pxWide(0, n2) >= 1 && onScreen(middleOf(n2))) found.n2 = middleOf(n2);
+      // the hairpin ring on the left; on the right only if there is none on the left (and
       // then not together with the once-round point, which would sit on top of it)
       const ut = [0, 1].map(j => camRun(j, Math.PI));
-      uturnSide = ut[0] && onScreen(middleOf(ut[0])) ? 0 : 1;
-      if (uturnSide === 1 && found.n2) found.n2 = null;
+      uturnSide = ut[1] && onScreen(middleOf(ut[1])) ? 1 : 0;
+      if (uturnSide === 0 && found.n2) found.n2 = null;
       if (ut[uturnSide] && onScreen(middleOf(ut[uturnSide]))) found.uturn = middleOf(ut[uturnSide]);
     }
 

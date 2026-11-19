@@ -10,14 +10,17 @@
 <meta property="og:url" content="https://drmayerson.github.io/bh-camera/">
 <meta property="og:title" content="Black hole camera">
 <meta property="og:description" content="See yourself through a spinning black hole: your camera picture, bent live according to general relativity.">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://drmayerson.github.io/bh-camera/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23140e26'/%3E%3Ccircle cx='16' cy='16' r='9.5' fill='none' stroke='%23ff9a3c' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23000'/%3E%3C/svg%3E">
 <!-- fonts served from this site (fonts/, Open Font License) -->
-<link rel="stylesheet" href="fonts/fonts.css?v=2026112002">
+<link rel="stylesheet" href="fonts/fonts.css?v=2026112101">
 <!-- ?v=: raise this number whenever texts.js changes, so browsers fetch the new texts -->
-<script src="texts.js?v=2026112002"></script>
+<script src="texts.js?v=2026112101"></script>
 <!-- page styles; ?v=: raise it whenever style.css changes -->
-<link rel="stylesheet" href="style.css?v=2026112002">
+<link rel="stylesheet" href="style.css?v=2026112101">
 </head>
 <body>
 <!-- the picture: the camera image, bent by the black hole (drawn by the shader) -->
@@ -210,7 +213,7 @@
       <input type="checkbox" id="keepPoints">
       <span data-t="keepPoints">Knop om de uitlegpunten te verbergen (ze komen na 2 minuten vanzelf terug)</span>
     </label>
-    <p class="hint" id="pointsNote" data-t="pointsNA" hidden>Uitlegpunten werken niet op deze computer.</p>
+    <p class="hint" id="pointsNote" data-t="pointsNA" hidden>Uitlegpunten werken niet op dit toestel.</p>
     <label class="check">
       <input type="checkbox" id="showLogo" checked>
       <span data-t="showLogo">Logo van de Einstein Telescope</span>
@@ -307,7 +310,7 @@
     <p class="group-title" data-t="shotWhat">Met de foto</p>
     <label class="check">
       <input type="checkbox" id="shotLocal" checked>
-      <span data-t="shotLocal">Opslaan op deze computer</span>
+      <span data-t="shotLocal">Opslaan op dit toestel</span>
     </label>
     <div class="sub indent" id="shotLocalSub">
       <p class="hint"><span data-t="saveIn">Opslaan in:</span> <b id="shotDirName">Downloads</b></p>
@@ -348,7 +351,7 @@
     <legend data-t="rememberLegend">Onthouden</legend>
     <label class="check">
       <input type="checkbox" id="remember" checked>
-      <span data-t="remember">Instellingen op deze computer onthouden, ook na herladen of herstarten</span>
+      <span data-t="remember">Instellingen op dit toestel onthouden, ook na herladen of herstarten</span>
     </label>
     <p class="hint" id="rememberNote"></p>
     <div class="btns"><button id="resetAll" data-t="resetAll">Alles terugzetten</button></div>
@@ -396,18 +399,18 @@
      Names declared at the top level of one file are visible in the files after it.
      ?v=: raise this number whenever a file in js/ changes, so browsers fetch the new
      version instead of an old copy. Keep this list in step with CORE in sw.js. -->
-<script src="js/01-lensing-shader.js?v=2026112002"></script>
-<script src="js/02-setup.js?v=2026112002"></script>
-<script src="js/03-settings.js?v=2026112002"></script>
-<script src="js/04-drawing.js?v=2026112002"></script>
-<script src="js/05-camera.js?v=2026112002"></script>
-<script src="js/06-panel.js?v=2026112002"></script>
-<script src="js/07-background-removal.js?v=2026112002"></script>
-<script src="js/08-background-pictures.js?v=2026112002"></script>
-<script src="js/09-photos.js?v=2026112002"></script>
-<script src="js/10-hand-photo.js?v=2026112002"></script>
-<script src="js/11-physics-points.js?v=2026112002"></script>
-<script src="js/12-main.js?v=2026112002"></script>
+<script src="js/01-lensing-shader.js?v=2026112101"></script>
+<script src="js/02-setup.js?v=2026112101"></script>
+<script src="js/03-settings.js?v=2026112101"></script>
+<script src="js/04-drawing.js?v=2026112101"></script>
+<script src="js/05-camera.js?v=2026112101"></script>
+<script src="js/06-panel.js?v=2026112101"></script>
+<script src="js/07-background-removal.js?v=2026112101"></script>
+<script src="js/08-background-pictures.js?v=2026112101"></script>
+<script src="js/09-photos.js?v=2026112101"></script>
+<script src="js/10-hand-photo.js?v=2026112101"></script>
+<script src="js/11-physics-points.js?v=2026112101"></script>
+<script src="js/12-main.js?v=2026112101"></script>
 
 </body>
 </html>

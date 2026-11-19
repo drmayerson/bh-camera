@@ -18,7 +18,7 @@ What was checked (November 2026):
 | Memory over several minutes in booth mode | stable: goes up and down between 9 and 60 MB and keeps returning to 9 MB (no leak) |
 | Camera unplugged during use | message on screen, automatic reconnect every 3 s, falls back to another camera if the chosen one is gone |
 | Restart of browser / computer | page comes back as it was left (settings, language, camera on, panel hidden), if "Onthouden" is on |
-| Graphics driver reset / laptop waking up | page restarts itself with the same settings (with fewer pixels at first); if the picture is lost 3 times within 3 minutes it stops and shows a message instead of restarting forever |
+| Graphics driver reset / laptop waking up | page restarts itself with the same settings (with fewer pixels at first); if the picture is lost 3 times within 3 minutes it shows a message and tries again by itself after 5 minutes, at the lowest quality; the same error in every frame for ~5 s counts as a lost picture |
 | Screen going to sleep | the page asks the browser to keep the screen on while it is open (Chrome/Edge) |
 | Starting without internet | after one visit with internet, the page starts offline too (offline cache): page, texts, pictures, fonts, QR library, and the person recognition once it has been used; tested by switching the web server off and reloading |
 | Mouse pointer | disappears after 3 s without movement |
@@ -42,8 +42,9 @@ What was checked (November 2026):
    camera picture is then used, sharper and with a wider view. Settings shows a hint when
    a portrait screen is used with a landscape camera.
    **Picture quality** is *Automatisch* by default: full screen resolution (e.g. 4K), stepping
-   down if the picture would stutter (on slow devices such as phones as far as about 0.5
-   megapixels). Settings shows the size drawn.
+   down if the picture would stutter, and back up after two smooth minutes. On laptops and
+   big screens it never goes below the laptop level (2.4 megapixels); phones may go down to
+   about 0.5 megapixels. Settings shows the size drawn.
 5. **Open the page** <https://drmayerson.github.io/bh-camera/>, click **Camera aan**
    and allow the camera; in the site settings (padlock icon left of the address) set
    *Camera* to **Allow**, so it starts by itself next time.

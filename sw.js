@@ -5,8 +5,8 @@
 // - the page: fetched fresh when there is internet (so updates arrive), from the cache when
 //   there is none or it takes longer than 4 s;
 // - its texts, style sheets and scripts: from the same place as the page, so an old page
-//   never gets new files or the other way round (fresh: they wait for the network, and the
-//   cache is used only when there is no network at all);
+//   never gets new files or the other way round (fresh: they wait for the network, up to
+//   20 s, and the cache is used when there is no network);
 // - everything else (pictures, fonts, fixed library versions, AI models): cache first.
 // The photo service (QR codes) is never cached.
 const CACHE = 'bhc-offline-v1';      // raise v1 when a picture in backgrounds/ changes (pictures are cache-first)
@@ -80,18 +80,18 @@ async function page(e){
   }
 }
 
-// a file of a fresh page: from the network (however long it takes); from the cache only
-// when there is no network at all
+// a file of a fresh page: from the network; from the cache when there is no network at
+// all, or when the network has not answered after 20 s (Wi-Fi that connects but hardly
+// transfers anything: better a page with one older file than a blank page)
 async function networkThenCache(req){
   const c = await caches.open(CACHE);
+  const net = fetch(req).then(r => { if (r.ok) c.put(stripSearch(req), r.clone()); return r; });
   try {
-    const r = await fetch(req);
-    if (r.ok) c.put(stripSearch(req), r.clone());
-    return r;
+    return await Promise.race([net, new Promise((_, no) => setTimeout(() => no(new Error('slow')), 20000))]);
   } catch (err) {
     const hit = await c.match(req, {ignoreSearch: true});
-    if (hit) return hit;
-    throw err;
+    if (hit) { net.catch(() => {}); return hit; }
+    return net;                           // nothing stored: keep waiting for the network
   }
 }
 
